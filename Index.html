@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASM Gestão Clínica - Apresentação</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #0a1628;
+            color: #fff;
+            line-height: 1.6;
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #0f2847 0%, #1e3a5f 50%, #0a1628 100%);
+            position: relative;
+            overflow: hidden;
+            page-break-after: always;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        /* PÁGINA 1 - CAPA */
+        .page-1 {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px;
+        }
+        
+        .luxury-badge {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%);
+            color: #0a1628;
+            padding: 12px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+        
+        .main-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 72px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+        
+        .subtitle {
+            font-size: 24px;
+            font-weight: 300;
+            color: #a8c5e8;
+            margin-bottom: 50px;
+            letter-spacing: 2px;
+        }
+        
+        .hero-text {
+            font-size: 18px;
+            max-width: 600px;
+            color: #e0e8f0;
+            margin-bottom: 60px;
+            line-height: 1.8;
+        }
+        
+        .price-container {
+            background: rgba(212, 175, 55, 0.1);
+            border: 2px solid #d4af37;
+            border-radius: 20px;
+            padding: 40px 60px;
+            position: relative;
+        }
+        
+        .price-old {
+            font-size: 28px;
+            text-decoration: line-through;
+            color: #8a9bb0;
+            margin-bottom: 10px;
+        }
+        
+        .price-new {
+            font-size: 64px;
+            font-weight: 900;
+            color: #d4af37;
+            line-height: 1;
+        }
+        
+        .price-label {
+            font-size: 14px;
+            color: #a8c5e8;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .launch-badge {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: #e53e3e;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 12px;
+            transform: rotate(15deg);
+            box-shadow: 0 5px 20px rgba(229, 62, 62, 0.4);
+        }
+        
+        .decoration-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+        }
+        
+        .circle-1 { width: 600px; height: 600px; top: -200px; right: -200px; }
+        .circle-2 { width: 400px; height: 400px; bottom: -100px; left: -100px; }
+        
+        /* PÁGINA 2 - PARA QUEM É */
+        .page-2 {
+            padding: 60px;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+        
+        .section-subtitle {
+            font-size: 16px;
+            color: #a8c5e8;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .areas-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .area-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .area-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .area-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        .area-desc {
+            font-size: 12px;
+            color: #8a9bb0;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(30, 58, 95, 0.5) 100%);
+            border-left: 4px solid #d4af37;
+            padding: 30px;
+            border-radius: 0 15px 15px 0;
+            margin-top: 40px;
+        }
+        
+        .highlight-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            font-style: italic;
+        }
+        
+        /* PÁGINA 3 - FUNCIONALIDADES */
+        .page-3 {
+            padding: 60px;
+        }
+        
+        .features-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .feature-number {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            color: #0a1628;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .feature-content h3 {
+            color: #d4af37;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        .feature-content p {
+            color: #a8c5e8;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .tech-highlight {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .tech-title {
+            color: #d4af37;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .tech-items {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #e0e8f0;
+        }
+        
+        /* PÁGINA 4 - BENEFÍCIOS E DIFERENCIAIS */
+        .page-4 {
+            padding: 60px;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .benefit-card {
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.8) 0%, rgba(15, 40, 71, 0.9) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #d4af37 0%, #f4d03f 100%);
+        }
+        
+        .benefit-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+        
+        .benefit-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .benefit-text {
+            font-size: 14px;
+            color: #a8c5e8;
+            line-height: 1.6;
+        }
+        
+        .guarantee-box {
+            background: linear-gradient(135deg, rgba(56, 161, 105, 0.2) 0%, rgba(30, 58, 95, 0.5) 100%);
+            border: 2px solid #38a169;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .guarantee-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .guarantee-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #38a169;
+            margin-bottom: 15px;
+        }
+        
+        .guarantee-text {
+            font-size: 16px;
+            color: #e0e8f0;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* PÁGINA 5 - OFERTA E CTA */
+        .page-5 {
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .offer-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .offer-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+        
+        .offer-subtitle {
+            font-size: 20px;
+            color: #a8c5e8;
+        }
+        
+        .offer-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            border-radius: 25px;
+            padding: 50px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .offer-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #8a9bb0;
+            margin-bottom: 20px;
+        }
+        
+        .offer-price-old {
+            font-size: 32px;
+            text-decoration: line-through;
+            color: #8a9bb0;
+            margin-bottom: 10px;
+        }
+        
+        .offer-price-new {
+            font-size: 80px;
+            font-weight: 900;
+            color: #d4af37;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        
+        .offer-price-installment {
+            font-size: 18px;
+            color: #a8c5e8;
+            margin-bottom: 30px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            color: #0a1628;
+            padding: 20px 60px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        
+        
+        .footer-info {
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+        }
+        
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+        
+        .footer-text {
+            font-size: 12px;
+            color: #8a9bb0;
+        }
+        
+        .copyright {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #5a6b80;
+        }
+        
+        /* PRINT STYLES */
+        @media print {
+            body { background: white; }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- PÁGINA 1: CAPA -->
+<div class="page page-1">
+    <div class="decoration-circle circle-1"></div>
+    <div class="decoration-circle circle-2"></div>
+    
+    <div class="luxury-badge">Sistema Profissional</div>
+    
+    <h1 class="main-title">ASM Gestão<br>Clínica</h1>
+    
+    <p class="subtitle">O Poder da Gestão na Palma da Sua Mão</p>
+    
+    <p class="hero-text">
+        O sistema completo para profissionais da saúde que querem organizar 
+        sua clínica, automatizar processos e multiplicar resultados sem 
+        depender de planilhas complicadas ou sistemas caros.
+    </p>
+    
+    <div class="price-container">
+        <div class="launch-badge">LANÇAMENTO</div>
+        <div class="price-old">De R$ 397,00</div>
+        <div class="price-new">R$ 297,00</div>
+        <div class="price-label">Acesso Imediato • Pagamento Único</div>
+    </div>
+</div>
+
+<!-- PÁGINA 2: PARA QUEM É -->
+<div class="page page-2">
+    <div class="section-header">
+        <h2 class="section-title">Para Quem é Indicado</h2>
+        <p class="section-subtitle">Multiáreas da Saúde</p>
+    </div>
+    
+    <div class="areas-grid">
+        <div class="area-card">
+            <div class="area-icon">🩺</div>
+            <div class="area-name">Medicina</div>
+            <div class="area-desc">Clínicos e Especialistas</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">🦷</div>
+            <div class="area-name">Odontologia</div>
+            <div class="area-desc">Dentistas e Ortodontistas</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">🏃</div>
+            <div class="area-name">Fisioterapia</div>
+            <div class="area-desc">Fisioterapeutas e Clínicas</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">🧠</div>
+            <div class="area-name">Psicologia</div>
+            <div class="area-desc">Psicólogos e Terapeutas</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">🥗</div>
+            <div class="area-name">Nutrição</div>
+            <div class="area-desc">Nutricionistas e Consultórios</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">🗣️</div>
+            <div class="area-name">Fonoaudiologia</div>
+            <div class="area-desc">Fonoaudiólogos</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">✋</div>
+            <div class="area-name">Terapia Ocupacional</div>
+            <div class="area-desc">Terapeutas Ocupacionais</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">💉</div>
+            <div class="area-name">Enfermagem</div>
+            <div class="area-desc">Enfermeiros e Home Care</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">✨</div>
+            <div class="area-name">Estética</div>
+            <div class="area-desc">Esteticistas e SPA</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">🐾</div>
+            <div class="area-name">Veterinária</div>
+            <div class="area-desc">Médicos Veterinários</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">📚</div>
+            <div class="area-name">Psicopedagogia</div>
+            <div class="area-desc">Psicopedagogos</div>
+        </div>
+        
+        <div class="area-card">
+            <div class="area-icon">🏋️</div>
+            <div class="area-name">Educação Física</div>
+            <div class="area-desc">Profissionais de Ed. Física</div>
+        </div>
+    </div>
+    
+    <div class="highlight-box">
+        <p class="highlight-text">
+            "Independente da sua área de atuação na saúde, se você atende 
+            pacientes e precisa organizar sua agenda, finanças e prontuários, 
+            este sistema foi feito para você."
+        </p>
+    </div>
+</div>
+
+<!-- PÁGINA 3: FUNCIONALIDADES -->
+<div class="page page-3">
+    <div class="section-header">
+        <h2 class="section-title">Funcionalidades Completas</h2>
+        <p class="section-subtitle">Tudo Que Você Precisa em Um Só Lugar</p>
+    </div>
+    
+    <div class="features-container">
+        <div class="feature-item">
+            <div class="feature-number">01</div>
+            <div class="feature-content">
+                <h3>Agenda Inteligente</h3>
+                <p>Visualização mensal completa, agendamentos com um clique, controle de faltas e cancelamentos. Nunca mais perca um compromisso.</p>
+            </div>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-number">02</div>
+            <div class="feature-content">
+                <h3>Cadastro de Pacientes</h3>
+                <p>Ficha completa com dados pessoais, histórico, queixa principal e valor padrão de consulta. Acesso rápido e organizado.</p>
+            </div>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-number">03</div>
+            <div class="feature-content">
+                <h3>Prontuário Eletrônico</h3>
+                <p>Registro de evoluções clínicas com data e hora automáticas. Histórico completo de cada paciente sempre disponível.</p>
+            </div>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-number">04</div>
+            <div class="feature-content">
+                <h3>Controle Financeiro</h3>
+                <p>Acompanhamento de receitas e despesas, status de pagamento (pago/pendente), cobranças automáticas via WhatsApp.</p>
+            </div>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-number">05</div>
+            <div class="feature-content">
+                <h3>Fluxo de Caixa</h3>
+                <p>Entradas e saídas organizadas por mês, categorização de despesas, saldo em tempo real. Controle total do seu dinheiro.</p>
+            </div>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-number">06</div>
+            <div class="feature-content">
+                <h3>Relatórios Gerenciais</h3>
+                <p>Estatísticas de atendimentos, faturamento por período, análise por paciente. Dados que ajudam a tomar decisões.</p>
+            </div>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-number">07</div>
+            <div class="feature-content">
+                <h3>Relatórios em PDF</h3>
+                <p>Geração de relatórios mensais profissionais para pacientes ou convênios, com cabeçalho personalizado e assinatura digital.</p>
+            </div>
+        </div>
+        
+        <div class="feature-item">
+            <div class="feature-number">08</div>
+            <div class="feature-content">
+                <h3>Integração WhatsApp</h3>
+                <p>Envio de confirmações de consulta, lembretes automáticos e cobranças diretamente pelo aplicativo, com mensagens personalizadas.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tech-highlight">
+        <div class="tech-title">⚡ Tecnologia de Ponta</div>
+        <div class="tech-items">
+            <div class="tech-item">☁️ Dados na Nuvem</div>
+            <div class="tech-item">📱 Acesso em Qualquer Dispositivo</div>
+            <div class="tech-item">🔒 Ativação Segura por CPF</div>
+            <div class="tech-item">💾 Backup Automático</div>
+        </div>
+    </div>
+</div>
+
+<!-- PÁGINA 4: BENEFÍCIOS -->
+<div class="page page-4">
+    <div class="section-header">
+        <h2 class="section-title">Por Que Escolher?</h2>
+        <p class="section-subtitle">Benefícios que Transformam seu Negócio</p>
+    </div>
+    
+    <div class="benefits-grid">
+        <div class="benefit-card">
+            <div class="benefit-icon">⏰</div>
+            <h3 class="benefit-title">Economia de Tempo</h3>
+            <p class="benefit-text">Automatize tarefas repetitivas como agendamentos e cobranças. Ganhe horas preciosas para se dedicar ao que realmente importa: seus pacientes.</p>
+        </div>
+        
+        <div class="benefit-card">
+            <div class="benefit-icon">💰</div>
+            <h3 class="benefit-title">Controle Financeiro Total</h3>
+            <p class="benefit-text">Saiba exatamente quanto entrou, quanto falta receber e quais são suas despesas. Nunca mais fique no escuro sobre seu faturamento.</p>
+        </div>
+        
+        <div class="benefit-card">
+            <div class="benefit-icon">📈</div>
+            <h3 class="benefit-title">Profissionalismo</h3>
+            <p class="benefit-text">Relatórios em PDF, confirmações automáticas e prontuários organizados elevam a percepção de valor do seu trabalho perante pacientes.</p>
+        </div>
+        
+        <div class="benefit-card">
+            <div class="benefit-icon">🔐</div>
+            <h3 class="benefit-title">Segurança dos Dados</h3>
+            <p class="benefit-text">Tecnologia Firebase do Google, criptografia de ponta e ativação vinculada ao seu CPF. Seus dados protegidos com tecnologia de nível empresarial.</p>
+        </div>
+        
+        <div class="benefit-card">
+            <div class="benefit-icon">🎯</div>
+            <h3 class="benefit-title">Foco na Saúde</h3>
+            <p class="benefit-text">Interface desenvolvida por quem entende de saúde. Sem complexidade desnecessária, apenas o que você realmente precisa no dia a dia.</p>
+        </div>
+        
+        <div class="benefit-card">
+            <div class="benefit-icon">📱</div>
+            <h3 class="benefit-title">Mobilidade Total</h3>
+            <p class="benefit-text">Acesse de qualquer lugar: consultório, home office ou smartphone. Seus dados sincronizados em tempo real em todos os dispositivos.</p>
+        </div>
+    </div>
+    
+    <div class="guarantee-box">
+        <div class="guarantee-icon">🛡️</div>
+        <h3 class="guarantee-title">Garantia de Funcionamento</h3>
+        <p class="guarantee-text">
+            Sistema testado e validado por profissionais da saúde. 
+            Acesso imediato após a compra. Tecnologia estável e confiável 
+            para você trabalhar sem preocupações técnicas.
+        </p>
+    </div>
+</div>
+
+<!-- PÁGINA 5: OFERTA FINAL -->
+<div class="page page-5">
+    <div class="offer-header">
+        <h2 class="offer-title">Oferta Especial de Lançamento</h2>
+        <p class="offer-subtitle">Invista na organização do seu consultório hoje</p>
+    </div>
+    
+    <div class="bonus-box">
+        <div class="bonus-title">🎁 BÔNUS INCLUSO</div>
+        <div class="bonus-text">
+            Configuração completa do sistema + Tutorial de utilização + 
+            Modelos de mensagens para WhatsApp prontos para usar
+        </div>
+    </div>
+    
+    <div class="offer-box">
+        <div class="offer-label">Investimento Único • Sem Mensalidades</div>
+        <div class="offer-price-old">R$ 397,00</div>
+        <div class="offer-price-new">R$ 297,00</div>
+        <div class="offer-price-installment">ou 12x de R$ 29,70 no cartão</div>
+        <a href="#" class="cta-button">Quero Meu Acesso Agora</a>
+    </div>
+    
+    <div class="footer-info">
+        <div class="footer-logo">ASM Gestão Clínica</div>
+        <p class="footer-text">
+            Desenvolvido por Dra. Andresa Augusto - CREFITO 40.9314-F<br>
+            Especialista em Gestão para Profissionais da Saúde
+        </p>
+        <p class="copyright">
+            © 2024 ASM Gestão Clínica. Todos os direitos reservados.<br>
+            Proibida reprodução sem autorização.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>
