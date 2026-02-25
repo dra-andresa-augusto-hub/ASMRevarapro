@@ -219,6 +219,23 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
 .user-type-option.disabled .desc{color:#cbd5e0}
 .limit-warning{background:#fed7d7;color:#c53030;padding:10px;border-radius:5px;margin-bottom:15px;font-size:13px;text-align:center}
 .limit-info{background:#c6f6d5;color:#276749;padding:10px;border-radius:5px;margin-bottom:15px;font-size:13px;text-align:center}
+/* Estilos para o modal de PIN */
+.pin-modal-content{max-width:400px;text-align:center}
+.pin-display{font-size:32px;letter-spacing:15px;margin:20px 0;padding:15px;background:#f7fafc;border-radius:10px;border:2px solid #e2e8f0;min-height:60px;display:flex;align-items:center;justify-content:center}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto}
+.pin-key{padding:20px;font-size:24px;border:2px solid #e2e8f0;background:white;border-radius:10px;cursor:pointer;transition:all 0.2s;font-weight:bold}
+.pin-key:hover{background:#ebf8ff;border-color:#1e3a5f}
+.pin-key:active{background:#1e3a5f;color:white}
+.pin-key.delete{background:#fed7d7;border-color:#fc8181;color:#c53030}
+.pin-key.delete:hover{background:#fc8181;color:white}
+.pin-key.clear{background:#fefcbf;border-color:#f6e05e;color:#975a16}
+.pin-key.clear:hover{background:#f6e05e;color:white}
+.pin-key.enter{background:#c6f6d5;border-color:#68d391;color:#276749}
+.pin-key.enter:hover{background:#68d391;color:white}
+.pin-error{color:#e53e3e;margin-top:15px;font-size:14px;display:none}
+.pin-info{color:#718096;margin-bottom:15px;font-size:13px}
+.pin-input-field{width:100%;padding:15px;font-size:24px;text-align:center;letter-spacing:10px;border:2px solid #cbd5e0;border-radius:8px;margin-bottom:15px;font-weight:bold}
+.pin-input-field:focus{outline:none;border-color:#1e3a5f}
 </style>
 </head>
 <body>
@@ -417,6 +434,11 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
             <div class="form-group" id="newUserPixGroup">
               <label>Chave Pix</label>
               <input type="text" id="newUserPix" placeholder="CPF, CNPJ, e-mail ou telefone">
+            </div>
+            <div class="form-group" id="newUserPinGroup">
+              <label>PIN de 4 dígitos * <span style="font-weight:normal;color:#718096;font-size:12px">(Para acessar dados financeiros)</span></label>
+              <input type="password" id="newUserPin" placeholder="0000" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)" style="font-size:18px;letter-spacing:5px;text-align:center">
+              <p style="font-size:12px;color:#718096;margin-top:5px">Este PIN será usado para desbloquear Dashboard, Financeiro, Fluxo de Caixa e Relatórios</p>
             </div>
             <div style="display:flex;gap:10px">
               <button class="btn btn-primary" onclick="saveUser()">💾 Salvar Usuário</button>
@@ -821,6 +843,38 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
     </div>
   </div>
   
+  <!-- Modal de Desbloqueio por PIN -->
+  <div class="modal" id="pinUnlockModal">
+    <div class="modal-content pin-modal-content">
+      <div class="modal-header" style="justify-content:center;border-bottom:none;padding-bottom:0">
+        <h3>🔒 Área Protegida</h3>
+      </div>
+      <p class="pin-info">Digite seu PIN de 4 dígitos para acessar<br>Dashboard, Financeiro, Fluxo de Caixa e Relatórios</p>
+      
+      <div class="pin-display" id="pinDisplay">••••</div>
+      
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="enterPinDigit('1')">1</button>
+        <button class="pin-key" onclick="enterPinDigit('2')">2</button>
+        <button class="pin-key" onclick="enterPinDigit('3')">3</button>
+        <button class="pin-key" onclick="enterPinDigit('4')">4</button>
+        <button class="pin-key" onclick="enterPinDigit('5')">5</button>
+        <button class="pin-key" onclick="enterPinDigit('6')">6</button>
+        <button class="pin-key" onclick="enterPinDigit('7')">7</button>
+        <button class="pin-key" onclick="enterPinDigit('8')">8</button>
+        <button class="pin-key" onclick="enterPinDigit('9')">9</button>
+        <button class="pin-key clear" onclick="clearPin()">C</button>
+        <button class="pin-key" onclick="enterPinDigit('0')">0</button>
+        <button class="pin-key delete" onclick="deletePinDigit()">⌫</button>
+      </div>
+      
+      <div class="pin-error" id="pinError">PIN incorreto. Tente novamente.</div>
+      
+      <button class="btn btn-primary" onclick="verifyPin()" style="width:100%;margin-top:20px">🔓 Desbloquear</button>
+      <button class="btn btn-danger" onclick="cancelPinUnlock()" style="width:100%;margin-top:10px">Cancelar</button>
+    </div>
+  </div>
+  
   <div class="footer">
     <p><strong>ASM Gestão Clínica</strong></p>
     <p>© 2024 Dra. Andresa Augusto - Todos os direitos reservados</p>
@@ -862,6 +916,13 @@ let selectedFinancial = new Set();
 let clinicUsers = [];
 let clinicConfig = [];
 let currentUserTypeSelection = 'terapeuta';
+
+// Variáveis para controle de PIN
+let currentPin = '';
+let targetSection = '';
+let pinVerified = false;
+let pinVerifiedTime = null;
+const PIN_VALIDITY_MINUTES = 30; // PIN válido por 30 minutos
 
 const professionConfig = {
   fisioterapia: { name: 'Fisioterapia', registry: 'CREFITO', placeholder: '00 0000 F' },
@@ -1050,7 +1111,8 @@ async function loadDataFromFirebase() {
       pix: userData.pix || '',
       cpf: userData.cpf || '',
       role: currentUserRole,
-      clinic: clinicConfig.clinicName || 'ASM Saúde'
+      clinic: clinicConfig.clinicName || 'ASM Saúde',
+      pin: userData.pin || '' // Carrega o PIN do usuário
     };
     
     const userPrivateSnapshot = await database.ref(userDataPath + '/users/' + currentUserId + '/private').once('value');
@@ -1088,6 +1150,7 @@ async function saveDataToFirebase() {
       pix: config.pix,
       cpf: config.cpf,
       role: currentUserRole,
+      pin: config.pin || '', // Salva o PIN do usuário
       lastUpdate: new Date().toISOString()
     };
     await database.ref(userDataPath + '/users/' + currentUserId).update(userData);
@@ -1137,6 +1200,8 @@ function applyRoleRestrictions() {
 
 function logout() {
   localStorage.clear();
+  pinVerified = false;
+  pinVerifiedTime = null;
   location.reload();
 }
 
@@ -1216,7 +1281,8 @@ async function saveConfig() {
     registry: document.getElementById('configRegistry').value.trim(),
     pix: document.getElementById('configPix').value.trim(),
     role: currentUserRole,
-    clinic: document.getElementById('configClinic').value.trim() || 'ASM Saúde'
+    clinic: document.getElementById('configClinic').value.trim() || 'ASM Saúde',
+    pin: config.pin || '' // Mantém o PIN existente
   };
   
   if (!config.name || !config.registry || !config.cpf) { 
@@ -1324,6 +1390,8 @@ function switchToUser(userId) {
   if (confirm('Deseja trocar para este usuário? Os dados não salvos serão perdidos.')) {
     currentUserId = userId;
     localStorage.setItem('asm_user_id', userId);
+    pinVerified = false; // Reseta verificação de PIN ao trocar de usuário
+    pinVerifiedTime = null;
     location.reload();
   }
 }
@@ -1474,15 +1542,18 @@ function selectUserType(type) {
   const profGroup = document.getElementById('newUserProfessionGroup');
   const regGroup = document.getElementById('newUserRegistryGroup');
   const pixGroup = document.getElementById('newUserPixGroup');
+  const pinGroup = document.getElementById('newUserPinGroup');
   
   if (type === 'secretaria') {
     profGroup.style.display = 'none';
     regGroup.style.display = 'none';
     pixGroup.style.display = 'none';
+    pinGroup.style.display = 'none'; // Secretária não precisa de PIN
   } else {
     profGroup.style.display = 'block';
     regGroup.style.display = 'block';
     pixGroup.style.display = 'block';
+    pinGroup.style.display = 'block'; // Terapeuta precisa de PIN
   }
 }
 
@@ -1544,6 +1615,7 @@ function showUserForm() {
   document.getElementById('newUserProfession').value = '';
   document.getElementById('newUserRegistry').value = '';
   document.getElementById('newUserPix').value = '';
+  document.getElementById('newUserPin').value = '';
   
   updateUserTypeSelector();
   
@@ -1589,19 +1661,27 @@ async function saveUser() {
     const profession = document.getElementById('newUserProfession').value;
     const registry = document.getElementById('newUserRegistry').value.trim();
     const pix = document.getElementById('newUserPix').value.trim();
+    const pin = document.getElementById('newUserPin').value.trim();
     
     if (!profession || !registry) {
       alert('Preencha profissão e registro profissional!');
       return;
     }
     
+    if (!pin || pin.length !== 4) {
+      alert('O PIN deve ter exatamente 4 dígitos!');
+      return;
+    }
+    
     userData.profession = profession;
     userData.registry = registry;
     userData.pix = pix;
+    userData.pin = pin; // Salva o PIN do terapeuta
   } else {
     userData.profession = '';
     userData.registry = '';
     userData.pix = '';
+    // Secretária não tem PIN
   }
   
   const newUserId = 'user_' + Date.now();
@@ -1688,7 +1768,31 @@ function updateRecValue() {
   }
 }
 
+// Funções para controle de PIN
+function isPinVerificationValid() {
+  if (!pinVerified || !pinVerifiedTime) return false;
+  const now = new Date();
+  const diff = (now - pinVerifiedTime) / (1000 * 60); // Diferença em minutos
+  return diff < PIN_VALIDITY_MINUTES;
+}
+
+function requiresPinVerification(section) {
+  // Apenas terapeutas precisam de PIN para acessar áreas protegidas
+  if (currentUserRole === 'secretaria') return false;
+  
+  // Áreas que requerem PIN
+  const protectedAreas = ['dashboard', 'financeiro', 'fluxo', 'relatorios'];
+  return protectedAreas.includes(section);
+}
+
 function showSection(section) {
+  // Verifica se é área protegida e se precisa de verificação de PIN
+  if (requiresPinVerification(section) && !isPinVerificationValid()) {
+    targetSection = section;
+    openPinModal();
+    return;
+  }
+  
   if (currentUserRole === 'secretaria') {
     if (section === 'financeiro' || section === 'fluxo' || section === 'relatorios' || section === 'dashboard') {
       alert('Acesso restrito. Secretária não tem permissão para acessar esta área.');
@@ -1717,6 +1821,100 @@ function showSection(section) {
   if (section === 'relatorios') renderReports();
   if (section === 'dashboard') updateDashboard();
   if (section === 'pacientes') renderPatientsList();
+}
+
+function openPinModal() {
+  currentPin = '';
+  updatePinDisplay();
+  document.getElementById('pinError').style.display = 'none';
+  document.getElementById('pinUnlockModal').classList.add('active');
+}
+
+function closePinModal() {
+  document.getElementById('pinUnlockModal').classList.remove('active');
+  currentPin = '';
+}
+
+function enterPinDigit(digit) {
+  if (currentPin.length < 4) {
+    currentPin += digit;
+    updatePinDisplay();
+  }
+}
+
+function deletePinDigit() {
+  currentPin = currentPin.slice(0, -1);
+  updatePinDisplay();
+}
+
+function clearPin() {
+  currentPin = '';
+  updatePinDisplay();
+}
+
+function updatePinDisplay() {
+  const display = document.getElementById('pinDisplay');
+  if (currentPin.length === 0) {
+    display.textContent = '••••';
+  } else {
+    display.textContent = '•'.repeat(currentPin.length) + '•'.repeat(4 - currentPin.length);
+  }
+}
+
+function verifyPin() {
+  if (currentPin.length !== 4) {
+    document.getElementById('pinError').textContent = 'Digite 4 dígitos';
+    document.getElementById('pinError').style.display = 'block';
+    return;
+  }
+  
+  // Verifica se o PIN corresponde ao usuário atual
+  if (currentPin === config.pin) {
+    pinVerified = true;
+    pinVerifiedTime = new Date();
+    closePinModal();
+    
+    // Agora sim, mostra a seção desejada
+    if (targetSection) {
+      // Remove a verificação de PIN temporariamente para evitar loop
+      const tempTarget = targetSection;
+      targetSection = '';
+      
+      // Chama showSection novamente sem a verificação de PIN
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+      
+      const sectionEl = document.getElementById(tempTarget);
+      if (sectionEl) sectionEl.classList.add('active');
+      
+      const navButtons = document.querySelectorAll('.nav button');
+      navButtons.forEach(btn => {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tempTarget)) {
+          btn.classList.add('active');
+        }
+      });
+      
+      if (tempTarget === 'financeiro') { 
+        selectedFinancial.clear(); 
+        renderFinancialTable(); 
+      }
+      if (tempTarget === 'fluxo') renderCashFlow();
+      if (tempTarget === 'relatorios') renderReports();
+      if (tempTarget === 'dashboard') updateDashboard();
+    }
+  } else {
+    document.getElementById('pinError').textContent = 'PIN incorreto. Tente novamente.';
+    document.getElementById('pinError').style.display = 'block';
+    currentPin = '';
+    updatePinDisplay();
+  }
+}
+
+function cancelPinUnlock() {
+  closePinModal();
+  targetSection = '';
+  // Volta para a agenda (área não protegida)
+  showSection('agenda');
 }
 
 function renderPatientsList() {
