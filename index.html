@@ -92,6 +92,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
 .summary-card.red{background:#e53e3e}
 .summary-card.blue{background:#1e3a5f}
 .summary-card.purple{background:#805ad5}
+.summary-card.gold{background:#d69e2e}
 .tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:2px solid #e2e8f0;flex-wrap:wrap}
 .tab{padding:10px 20px;background:none;border:none;cursor:pointer;color:#4a5568;font-weight:bold}
 .tab.active{color:#1e3a5f;border-bottom:2px solid #1e3a5f}
@@ -219,7 +220,6 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
 .user-type-option.disabled .desc{color:#cbd5e0}
 .limit-warning{background:#fed7d7;color:#c53030;padding:10px;border-radius:5px;margin-bottom:15px;font-size:13px;text-align:center}
 .limit-info{background:#c6f6d5;color:#276749;padding:10px;border-radius:5px;margin-bottom:15px;font-size:13px;text-align:center}
-/* Estilos para o modal de PIN */
 .pin-modal-content{max-width:400px;text-align:center}
 .pin-display{font-size:32px;letter-spacing:15px;margin:20px 0;padding:15px;background:#f7fafc;border-radius:10px;border:2px solid #e2e8f0;min-height:60px;display:flex;align-items:center;justify-content:center}
 .pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto}
@@ -236,6 +236,19 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
 .pin-info{color:#718096;margin-bottom:15px;font-size:13px}
 .pin-input-field{width:100%;padding:15px;font-size:24px;text-align:center;letter-spacing:10px;border:2px solid #cbd5e0;border-radius:8px;margin-bottom:15px;font-weight:bold}
 .pin-input-field:focus{outline:none;border-color:#1e3a5f}
+.checkbox-container{display:flex;align-items:center;gap:10px;margin:15px 0;padding:15px;background:#f7fafc;border-radius:8px;border:2px solid #e2e8f0}
+.checkbox-container input[type="checkbox"]{width:20px;height:20px;cursor:pointer}
+.checkbox-container label{cursor:pointer;font-weight:normal;margin:0}
+.birthday-card{background:linear-gradient(135deg,#d69e2e 0%,#ecc94b 100%);color:white}
+.birthday-list{max-height:200px;overflow-y:auto;margin-top:15px}
+.birthday-item{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,0.2);border-radius:8px;margin-bottom:8px}
+.birthday-item .icon{font-size:24px}
+.birthday-item .info{flex:1}
+.birthday-item .name{font-weight:bold}
+.birthday-item .date{font-size:12px;opacity:0.9}
+.birthday-item .btn-whatsapp-small{background:#25d366;color:white;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px}
+.birthday-item .btn-whatsapp-small:hover{background:#128c7e}
+.no-birthday{text-align:center;padding:20px;color:rgba(255,255,255,0.8)}
 </style>
 </head>
 <body>
@@ -304,6 +317,13 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         <div class="summary-card purple"><h3 id="dashAvgTicket">R$ 0,00</h3><p>Ticket Médio</p></div>
         <div class="summary-card red"><h3 id="dashPending">R$ 0,00</h3><p>A Receber</p></div>
       </div>
+      
+      <!-- CARD DE ANIVERSARIANTES -->
+      <div class="summary-card birthday-card" id="birthdayCard" style="margin-top:20px;display:none">
+        <h3>🎂 Aniversariantes do Mês</h3>
+        <div class="birthday-list" id="birthdayList"></div>
+      </div>
+      
       <div class="dashboard-grid">
         <div class="dashboard-card">
           <h3>📈 Faturamento por Tipo</h3>
@@ -335,8 +355,8 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
             <input type="text" id="configName" placeholder="Dr(a). Nome Completo">
           </div>
           <div class="form-group" id="configCPFGroup">
-            <label>CPF *</label>
-            <input type="text" id="configProfCPF" placeholder="000.000.000-00" maxlength="14" oninput="this.value=formatCPF(this.value)">
+            <label>CPF/CNPJ *</label>
+            <input type="text" id="configProfCPF" placeholder="000.000.000-00 ou 00.000.000/0000-00" maxlength="18" oninput="formatCPFCNPJ(this)">
           </div>
           <div class="form-group" id="configProfessionGroup">
             <label>Especialidade/Profissão *</label>
@@ -661,6 +681,13 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         </select>
       </div>
       <div class="form-group">
+        <label>Frequência</label>
+        <select id="recFrequency">
+          <option value="7">Semanal (7 dias)</option>
+          <option value="15">Quinzenal (15 dias)</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label>Tipo de Atendimento</label>
         <select id="recType" onchange="updateRecValue()"></select>
       </div>
@@ -669,7 +696,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         <input type="number" id="recValue" step="0.01" placeholder="0,00">
       </div>
       <div class="recurrence-options">
-        <p style="font-size:13px;color:#718096;margin-bottom:10px">Serão criados agendamentos semanais automaticamente</p>
+        <p style="font-size:13px;color:#718096;margin-bottom:10px">Serão criados agendamentos automaticamente</p>
         <div id="recPreview" style="font-size:12px;color:#2d3748"></div>
       </div>
       <button class="btn btn-success" onclick="saveRecurrence()" style="width:100%;margin-top:15px">Criar Agendamentos Recorrentes</button>
@@ -734,6 +761,14 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
           <input type="text" id="patientName" placeholder="Nome do paciente">
         </div>
         <div class="form-group">
+          <label>CPF *</label>
+          <input type="text" id="patientCPF" placeholder="000.000.000-00" maxlength="14" oninput="this.value=formatCPF(this.value)">
+        </div>
+        <div class="form-group">
+          <label>Data de Nascimento *</label>
+          <input type="date" id="patientBirthDate">
+        </div>
+        <div class="form-group">
           <label>Telefone *</label>
           <input type="tel" id="patientPhone" placeholder="(00) 00000-0000">
         </div>
@@ -745,10 +780,6 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
           <label>Valor Padrão da Consulta (R$)</label>
           <input type="number" id="patientValue" step="0.01" placeholder="0,00">
         </div>
-        <div class="form-group">
-          <label>Queixa Principal / Motivo da Consulta</label>
-          <textarea id="patientComplaint" rows="3" placeholder="Descreva a queixa principal..."></textarea>
-        </div>
       </div>
       
       <div id="patientTabFinanceiro" class="patient-modal-content">
@@ -756,8 +787,9 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
           <div class="summary-card green"><h3 id="patientPaid">R$ 0,00</h3><p>Pago</p></div>
           <div class="summary-card red"><h3 id="patientPending">R$ 0,00</h3><p>Pendente</p></div>
         </div>
-        <div style="margin-bottom:15px">
+        <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn btn-whatsapp" onclick="sendPendingSessionsWhatsApp()" id="btnCobrarSelecionadasPatient" style="display:none">📱 Cobrar Selecionadas</button>
+          <button class="btn btn-pdf" onclick="generateReceiptPDF()" id="btnGerarRecibo" style="display:none">📕 Gerar Recibo PDF</button>
         </div>
         <div style="overflow-x:auto">
           <table>
@@ -790,6 +822,10 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         <div class="form-group">
           <label>Mês/Ano do Relatório</label>
           <input type="month" id="reportMonthPatient">
+        </div>
+        <div class="checkbox-container">
+          <input type="checkbox" id="includeEvolution" checked>
+          <label for="includeEvolution">Incluir evolução no relatório</label>
         </div>
         <button class="btn btn-primary" onclick="generatePatientReport()" style="width:100%;margin-bottom:15px">📄 Gerar Relatório</button>
         <div id="reportContainer" style="display:none">
@@ -914,6 +950,7 @@ let selectedFinancial = new Set();
 let clinicUsers = [];
 let clinicConfig = [];
 let currentUserTypeSelection = 'terapeuta';
+let selectedPaidSessions = new Set();
 
 // Variáveis para controle de PIN
 let currentPin = '';
@@ -969,6 +1006,23 @@ function formatCPF(cpf) {
     cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   }
   return cpf;
+}
+
+function formatCPFCNPJ(input) {
+  let value = input.value.replace(/\D/g, '');
+  if (value.length <= 11) {
+    // CPF
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  } else {
+    // CNPJ
+    value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+    value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+    value = value.replace(/(\d{4})(\d)/, '$1-$2');
+  }
+  input.value = value;
 }
 
 document.getElementById('userCPF')?.addEventListener('input', function(e) {
@@ -1110,7 +1164,7 @@ async function loadDataFromFirebase() {
       cpf: userData.cpf || '',
       role: currentUserRole,
       clinic: clinicConfig.clinicName || 'ASM Saúde',
-      pin: userData.pin || '' // Carrega o PIN do usuário
+      pin: userData.pin || ''
     };
     
     const userPrivateSnapshot = await database.ref(userDataPath + '/users/' + currentUserId + '/private').once('value');
@@ -1148,7 +1202,7 @@ async function saveDataToFirebase() {
       pix: config.pix,
       cpf: config.cpf,
       role: currentUserRole,
-      pin: config.pin || '', // Salva o PIN do usuário
+      pin: config.pin || '',
       lastUpdate: new Date().toISOString()
     };
     await database.ref(userDataPath + '/users/' + currentUserId).update(userData);
@@ -1215,10 +1269,72 @@ async function initializeApp() {
   loadCancelRecurrenceSelect();
   renderConsultationTypes();
   updateDashboard();
+  checkBirthdays();
   
   const today = new Date().toISOString().slice(0, 7);
   document.getElementById('cashFlowMonth').value = today;
   document.getElementById('reportMonth').value = today;
+}
+
+// FUNÇÃO PARA VERIFICAR ANIVERSARIANTES
+function checkBirthdays() {
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const currentDay = today.getDate();
+  
+  const birthdayPatients = patients.filter(p => {
+    if (!p.birthDate) return false;
+    const birthDate = new Date(p.birthDate);
+    return (birthDate.getMonth() + 1) === currentMonth;
+  }).sort((a, b) => {
+    const dateA = new Date(a.birthDate);
+    const dateB = new Date(b.birthDate);
+    return dateA.getDate() - dateB.getDate();
+  });
+  
+  const birthdayCard = document.getElementById('birthdayCard');
+  const birthdayList = document.getElementById('birthdayList');
+  
+  if (birthdayPatients.length === 0) {
+    birthdayCard.style.display = 'none';
+    return;
+  }
+  
+  birthdayCard.style.display = 'block';
+  birthdayList.innerHTML = '';
+  
+  birthdayPatients.forEach(p => {
+    const birthDate = new Date(p.birthDate);
+    const day = birthDate.getDate();
+    const isToday = day === currentDay;
+    
+    const item = document.createElement('div');
+    item.className = 'birthday-item';
+    item.innerHTML = `
+      <div class="icon">${isToday ? '🎂' : '🎈'}</div>
+      <div class="info">
+        <div class="name">${p.name} ${isToday ? '(Hoje!)' : ''}</div>
+        <div class="date">Dia ${day}</div>
+      </div>
+      <button class="btn-whatsapp-small" onclick="sendBirthdayMessage('${p.id}')">📱 Parabéns</button>
+    `;
+    birthdayList.appendChild(item);
+  });
+}
+
+function sendBirthdayMessage(patientId) {
+  const patient = patients.find(p => p.id === patientId);
+  const sig = getProfessionalSignature();
+  
+  let msg = `Olá ${patient.name}! 🎉🎂\n\n`;
+  msg += `Feliz aniversário! 🥳✨\n\n`;
+  msg += `Que seu dia seja repleto de alegria, saúde e momentos especiais ao lado de quem você ama! 💚\n\n`;
+  msg += `Aproveite seu dia! 🎈🎁\n\n`;
+  
+  if (sig.name) msg += `Atenciosamente,\n${sig.name}`;
+  if (sig.registry) msg += `\n${sig.registry}`;
+  
+  window.open('https://wa.me/55' + patient.phone.replace(/\D/g, '') + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
 function updateRegistryLabel() {
@@ -1280,11 +1396,11 @@ async function saveConfig() {
     pix: document.getElementById('configPix').value.trim(),
     role: currentUserRole,
     clinic: document.getElementById('configClinic').value.trim() || 'ASM Saúde',
-    pin: config.pin || '' // Mantém o PIN existente
+    pin: config.pin || ''
   };
   
   if (!config.name || !config.registry || !config.cpf) { 
-    alert('Preencha nome, CPF e registro profissional!'); 
+    alert('Preencha nome, CPF/CNPJ e registro profissional!'); 
     return; 
   }
   
@@ -1388,7 +1504,7 @@ function switchToUser(userId) {
   if (confirm('Deseja trocar para este usuário? Os dados não salvos serão perdidos.')) {
     currentUserId = userId;
     localStorage.setItem('asm_user_id', userId);
-    pinVerified = false; // Reseta verificação de PIN ao trocar de usuário
+    pinVerified = false;
     pinVerifiedTime = null;
     location.reload();
   }
@@ -1546,12 +1662,12 @@ function selectUserType(type) {
     profGroup.style.display = 'none';
     regGroup.style.display = 'none';
     pixGroup.style.display = 'none';
-    pinGroup.style.display = 'none'; // Secretária não precisa de PIN
+    pinGroup.style.display = 'none';
   } else {
     profGroup.style.display = 'block';
     regGroup.style.display = 'block';
     pixGroup.style.display = 'block';
-    pinGroup.style.display = 'block'; // Terapeuta precisa de PIN
+    pinGroup.style.display = 'block';
   }
 }
 
@@ -1674,12 +1790,11 @@ async function saveUser() {
     userData.profession = profession;
     userData.registry = registry;
     userData.pix = pix;
-    userData.pin = pin; // Salva o PIN do terapeuta
+    userData.pin = pin;
   } else {
     userData.profession = '';
     userData.registry = '';
     userData.pix = '';
-    // Secretária não tem PIN
   }
   
   const newUserId = 'user_' + Date.now();
@@ -1770,21 +1885,18 @@ function updateRecValue() {
 function isPinVerificationValid() {
   if (!pinVerified || !pinVerifiedTime) return false;
   const now = new Date();
-  const diff = (now - pinVerifiedTime) / (1000 * 60); // Diferença em minutos
+  const diff = (now - pinVerifiedTime) / (1000 * 60);
   return diff < PIN_VALIDITY_MINUTES;
 }
 
 function requiresPinVerification(section) {
-  // Apenas terapeutas precisam de PIN para acessar áreas protegidas
   if (currentUserRole === 'secretaria') return false;
   
-  // Áreas que requerem PIN
   const protectedAreas = ['dashboard', 'financeiro', 'fluxo', 'relatorios'];
   return protectedAreas.includes(section);
 }
 
 function showSection(section) {
-  // Verifica se é área protegida e se precisa de verificação de PIN
   if (requiresPinVerification(section) && !isPinVerificationValid()) {
     targetSection = section;
     openPinModal();
@@ -1866,19 +1978,15 @@ function verifyPin() {
     return;
   }
   
-  // Verifica se o PIN corresponde ao usuário atual
   if (currentPin === config.pin) {
     pinVerified = true;
     pinVerifiedTime = new Date();
     closePinModal();
     
-    // Agora sim, mostra a seção desejada
     if (targetSection) {
-      // Remove a verificação de PIN temporariamente para evitar loop
       const tempTarget = targetSection;
       targetSection = '';
       
-      // Chama showSection novamente sem a verificação de PIN
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
       
@@ -1911,7 +2019,6 @@ function verifyPin() {
 function cancelPinUnlock() {
   closePinModal();
   targetSection = '';
-  // Volta para a agenda (área não protegida)
   showSection('agenda');
 }
 
@@ -2006,6 +2113,7 @@ async function deletePatientFromList(patientId) {
     loadPatientSelect();
     loadRecurrenceSelect();
     loadCancelRecurrenceSelect();
+    checkBirthdays();
   } catch (error) {
     alert('Erro ao excluir paciente: ' + error.message);
   }
@@ -2040,13 +2148,15 @@ function searchPatients(term) {
 function openPatientModal(patientId) {
   currentPatientId = patientId;
   selectedSessions.clear();
+  selectedPaidSessions.clear();
   
   document.getElementById('patientId').value = '';
   document.getElementById('patientName').value = '';
+  document.getElementById('patientCPF').value = '';
+  document.getElementById('patientBirthDate').value = '';
   document.getElementById('patientPhone').value = '';
   document.getElementById('patientEmail').value = '';
   document.getElementById('patientValue').value = '';
-  document.getElementById('patientComplaint').value = '';
   document.getElementById('newEvolution').value = '';
   document.getElementById('reportContainer').style.display = 'none';
   
@@ -2057,10 +2167,11 @@ function openPatientModal(patientId) {
     document.getElementById('patientModalTitle').textContent = 'Editar Paciente';
     document.getElementById('patientId').value = p.id;
     document.getElementById('patientName').value = p.name;
+    document.getElementById('patientCPF').value = p.cpf || '';
+    document.getElementById('patientBirthDate').value = p.birthDate || '';
     document.getElementById('patientPhone').value = p.phone;
     document.getElementById('patientEmail').value = p.email || '';
     document.getElementById('patientValue').value = p.defaultValue || '';
-    document.getElementById('patientComplaint').value = p.complaint || '';
     document.getElementById('btnDeletePatient').style.display = 'flex';
     
     document.getElementById('reportMonthPatient').value = new Date().toISOString().slice(0, 7);
@@ -2088,14 +2199,15 @@ async function savePatient() {
   const data = {
     id: id || Date.now().toString(),
     name: document.getElementById('patientName').value.trim(),
+    cpf: document.getElementById('patientCPF').value.trim(),
+    birthDate: document.getElementById('patientBirthDate').value,
     phone: document.getElementById('patientPhone').value.trim(),
     email: document.getElementById('patientEmail').value.trim(),
-    defaultValue: document.getElementById('patientValue').value,
-    complaint: document.getElementById('patientComplaint').value.trim()
+    defaultValue: document.getElementById('patientValue').value
   };
   
-  if (!data.name || !data.phone) { 
-    alert('Preencha nome e telefone!'); 
+  if (!data.name || !data.phone || !data.cpf || !data.birthDate) { 
+    alert('Preencha nome, CPF, data de nascimento e telefone!'); 
     return; 
   }
   
@@ -2112,6 +2224,7 @@ async function savePatient() {
   loadPatientSelect();
   loadRecurrenceSelect();
   loadCancelRecurrenceSelect();
+  checkBirthdays();
 }
 
 async function deletePatient() {
@@ -2143,6 +2256,7 @@ async function deletePatient() {
     loadPatientSelect();
     loadRecurrenceSelect();
     loadCancelRecurrenceSelect();
+    checkBirthdays();
   } catch (error) {
     alert('Erro ao excluir paciente: ' + error.message);
   }
@@ -2165,22 +2279,38 @@ function renderPatientFinance() {
   tbody.innerHTML = '';
   
   const btnCobrar = document.getElementById('btnCobrarSelecionadasPatient');
+  const btnRecibo = document.getElementById('btnGerarRecibo');
+  
   if (btnCobrar) {
     btnCobrar.style.display = selectedSessions.size > 0 ? 'inline-block' : 'none';
     btnCobrar.textContent = `📱 Cobrar Selecionadas (${selectedSessions.size})`;
   }
   
+  if (btnRecibo) {
+    btnRecibo.style.display = selectedPaidSessions.size > 0 ? 'inline-block' : 'none';
+  }
+  
   patientAppts.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(appt => {
     const row = document.createElement('tr');
-    row.className = 'session-row' + (selectedSessions.has(appt.id) ? ' selected' : '');
+    let rowClass = 'session-row';
+    if (selectedSessions.has(appt.id)) rowClass += ' selected';
+    if (appt.paid && selectedPaidSessions.has(appt.id)) rowClass += ' selected';
+    row.className = rowClass;
+    
     row.onclick = (e) => { 
-      if (e.target.type !== 'checkbox') toggleSessionSelection(appt.id); 
+      if (e.target.type !== 'checkbox') {
+        if (appt.paid) {
+          togglePaidSessionSelection(appt.id);
+        } else {
+          toggleSessionSelection(appt.id);
+        }
+      }
     };
     
     const paymentLabel = appt.paymentMethod === 'pix' ? 'Pix' : appt.paymentMethod === 'cartao' ? 'Cartão' : 'Dinheiro';
     
     row.innerHTML = `
-      <td><input type="checkbox" class="session-checkbox" ${selectedSessions.has(appt.id) ? 'checked' : ''} onchange="toggleSessionSelection('${appt.id}')"></td>
+      <td><input type="checkbox" class="session-checkbox" ${appt.paid ? (selectedPaidSessions.has(appt.id) ? 'checked' : '') : (selectedSessions.has(appt.id) ? 'checked' : '')} onchange="${appt.paid ? `togglePaidSessionSelection('${appt.id}')` : `toggleSessionSelection('${appt.id}')`}"></td>
       <td>${formatDate(appt.date)}</td>
       <td>${appt.typeName || appt.type}</td>
       <td>R$ ${parseFloat(appt.value || 0).toFixed(2)}</td>
@@ -2195,6 +2325,12 @@ function renderPatientFinance() {
 function toggleSessionSelection(apptId) {
   if (selectedSessions.has(apptId)) selectedSessions.delete(apptId);
   else selectedSessions.add(apptId);
+  renderPatientFinance();
+}
+
+function togglePaidSessionSelection(apptId) {
+  if (selectedPaidSessions.has(apptId)) selectedPaidSessions.delete(apptId);
+  else selectedPaidSessions.add(apptId);
   renderPatientFinance();
 }
 
@@ -2235,6 +2371,90 @@ function sendPendingSessionsWhatsApp() {
   msg += 'Qualquer dúvida, estou à disposição!' + (sig.name ? '\n\nAtenciosamente,\n' + sig.name : '') + (sig.registry ? '\n' + sig.registry : '');
   
   window.open('https://wa.me/55' + patient.phone.replace(/\D/g, '') + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// GERAR RECIBO PDF
+function generateReceiptPDF() {
+  if (selectedPaidSessions.size === 0) {
+    alert('Selecione pelo menos uma sessão paga para gerar o recibo!');
+    return;
+  }
+  
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const sig = getProfessionalSignature();
+  const patient = patients.find(p => p.id === currentPatientId);
+  
+  const selectedAppts = appointments
+    .filter(a => selectedPaidSessions.has(a.id))
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  
+  const total = selectedAppts.reduce((s, a) => s + parseFloat(a.value || 0), 0);
+  
+  // Cabeçalho
+  doc.setFillColor(30, 58, 95);
+  doc.rect(0, 0, 210, 50, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.text('RECIBO', 105, 30, { align: 'center' });
+  
+  // Dados da clínica
+  doc.setFontSize(12);
+  doc.text(sig.clinic.toUpperCase(), 105, 42, { align: 'center' });
+  
+  // Linha separadora
+  doc.setDrawColor(30, 58, 95);
+  doc.setLineWidth(0.5);
+  doc.line(10, 55, 200, 55);
+  
+  // Dados do recibo
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(12);
+  doc.text('RECIBO Nº ' + Date.now().toString().slice(-6), 10, 70);
+  doc.text('Data de emissão: ' + new Date().toLocaleDateString('pt-BR'), 10, 78);
+  
+  // Dados do paciente
+  doc.setFontSize(11);
+  doc.text('Recebi de: ' + patient.name, 10, 95);
+  doc.text('CPF: ' + (patient.cpf || 'Não informado'), 10, 103);
+  
+  // Descrição dos serviços
+  doc.setFontSize(12);
+  doc.setTextColor(30, 58, 95);
+  doc.text('SERVIÇOS PRESTADOS:', 10, 120);
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  
+  let yPosition = 130;
+  selectedAppts.forEach((appt, idx) => {
+    const paymentMethod = appt.paymentMethod === 'pix' ? 'Pix' : appt.paymentMethod === 'cartao' ? 'Cartão' : 'Dinheiro';
+    doc.text((idx + 1) + '. ' + formatDate(appt.date) + ' - ' + (appt.typeName || appt.type) + ' - R$ ' + parseFloat(appt.value || 0).toFixed(2) + ' (' + paymentMethod + ')', 10, yPosition);
+    yPosition += 7;
+  });
+  
+  // Total
+  doc.setFontSize(14);
+  doc.setTextColor(30, 58, 95);
+  doc.text('TOTAL: R$ ' + total.toFixed(2), 10, yPosition + 15);
+  
+  // Assinatura
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(11);
+  doc.text('_________________________________', 10, yPosition + 40);
+  doc.text(sig.name || 'Profissional', 10, yPosition + 48);
+  doc.text(sig.registry || '', 10, yPosition + 56);
+  
+  // Rodapé
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(128, 128, 128);
+    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica', 105, 290, { align: 'center' });
+    doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 295, { align: 'center' });
+  }
+  
+  doc.save('Recibo_' + patient.name.replace(/\s+/g, '_') + '_' + new Date().toISOString().slice(0, 10) + '.pdf');
 }
 
 function renderEvolutions() {
@@ -2281,6 +2501,8 @@ async function addEvolution() {
 
 function generatePatientReport() {
   const month = document.getElementById('reportMonthPatient').value;
+  const includeEvolution = document.getElementById('includeEvolution').checked;
+  
   if (!month) { 
     alert('Selecione o mês!'); 
     return; 
@@ -2319,15 +2541,18 @@ function generatePatientReport() {
     report += '\n';
   }
   
-  report += '📊 EVOLUÇÃO / ANOTAÇÕES\n\n';
-  if (monthEvos.length === 0) { 
-    report += 'Nenhuma evolução registrada.\n'; 
-  } else {
-    monthEvos.forEach((evo, i) => {
-      report += 'Atendimento ' + (i + 1) + ' - ' + formatDate(evo.date) + '\n';
-      report += evo.text + '\n';
-      report += '--------------------------------\n\n';
-    });
+  // Só inclui evolução se checkbox estiver marcado
+  if (includeEvolution) {
+    report += '📊 EVOLUÇÃO / ANOTAÇÕES\n\n';
+    if (monthEvos.length === 0) { 
+      report += 'Nenhuma evolução registrada.\n'; 
+    } else {
+      monthEvos.forEach((evo, i) => {
+        report += 'Atendimento ' + (i + 1) + ' - ' + formatDate(evo.date) + '\n';
+        report += evo.text + '\n';
+        report += '--------------------------------\n\n';
+      });
+    }
   }
   
   report += '\n' + sig.clinic + (sig.name ? '\n' + sig.name : '') + (sig.registry ? '\n' + sig.registry : '');
@@ -2351,6 +2576,7 @@ function generatePDFReport() {
   const sig = getProfessionalSignature();
   const patient = patients.find(p => p.id === currentPatientId);
   const month = document.getElementById('reportMonthPatient').value;
+  const includeEvolution = document.getElementById('includeEvolution').checked;
   const [year, mon] = month.split('-').map(Number);
   const monthName = new Date(year, mon - 1).toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
   
@@ -2408,32 +2634,35 @@ function generatePDFReport() {
     yPosition += 5;
   }
   
-  if (yPosition > 250) { doc.addPage(); yPosition = 20; }
-  
-  doc.setFontSize(12);
-  doc.setTextColor(30, 58, 95);
-  doc.text('EVOLUÇÃO CLÍNICA', 10, yPosition);
-  yPosition += 10;
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(10);
-  
-  if (monthEvos.length === 0) {
-    doc.text('Nenhuma evolução registrada neste período.', 10, yPosition);
+  // Só inclui evolução se checkbox estiver marcado
+  if (includeEvolution) {
+    if (yPosition > 250) { doc.addPage(); yPosition = 20; }
+    
+    doc.setFontSize(12);
+    doc.setTextColor(30, 58, 95);
+    doc.text('EVOLUÇÃO CLÍNICA', 10, yPosition);
     yPosition += 10;
-  } else {
-    monthEvos.forEach((evo, i) => {
-      if (yPosition > 270) { doc.addPage(); yPosition = 20; }
-      doc.setFont(undefined, 'bold');
-      doc.text('Atendimento ' + (i + 1) + ' - ' + formatDate(evo.date), 10, yPosition);
-      yPosition += 6;
-      doc.setFont(undefined, 'normal');
-      const splitText = doc.splitTextToSize(evo.text, 180);
-      doc.text(splitText, 10, yPosition);
-      yPosition += (splitText.length * 5) + 8;
-      doc.setDrawColor(200, 200, 200);
-      doc.line(10, yPosition, 200, yPosition);
-      yPosition += 8;
-    });
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    
+    if (monthEvos.length === 0) {
+      doc.text('Nenhuma evolução registrada neste período.', 10, yPosition);
+      yPosition += 10;
+    } else {
+      monthEvos.forEach((evo, i) => {
+        if (yPosition > 270) { doc.addPage(); yPosition = 20; }
+        doc.setFont(undefined, 'bold');
+        doc.text('Atendimento ' + (i + 1) + ' - ' + formatDate(evo.date), 10, yPosition);
+        yPosition += 6;
+        doc.setFont(undefined, 'normal');
+        const splitText = doc.splitTextToSize(evo.text, 180);
+        doc.text(splitText, 10, yPosition);
+        yPosition += (splitText.length * 5) + 8;
+        doc.setDrawColor(200, 200, 200);
+        doc.line(10, yPosition, 200, yPosition);
+        yPosition += 8;
+      });
+    }
   }
   
   const pageCount = doc.internal.getNumberOfPages();
@@ -2708,7 +2937,6 @@ function renderCalendar() {
       
       let html = '<span>' + appt.time + ' ' + (patient ? patient.name.split(' ')[0] : '') + '</span>';
       
-      // TODOS podem editar qualquer agendamento - ícone de lápis sempre visível
       html += '<span class="edit-icon" onclick="event.stopPropagation();editAppointment(\'' + appt.id + '\')" title="Editar">✏️</span>';
       apptDiv.style.cursor = 'pointer';
       apptDiv.onclick = (e) => { 
@@ -2759,12 +2987,6 @@ function editAppointment(id) {
   const appt = appointments.find(a => a.id === id);
   if (!appt) return;
   
-  // REMOVIDA a verificação de permissão - todos podem editar
-  // if (appt.userId !== currentUserId) {
-  //   alert('Você só pode editar seus próprios agendamentos.');
-  //   return;
-  // }
-  
   currentApptId = id;
   document.getElementById('apptPatient').value = appt.patientId;
   document.getElementById('apptDate').value = appt.date;
@@ -2810,12 +3032,6 @@ async function saveAppointment() {
   };
   
   if (currentApptId) {
-    // REMOVIDA a verificação de permissão ao salvar
-    // const existing = appointments.find(a => a.id === currentApptId);
-    // if (existing && existing.userId !== currentUserId) {
-    //   alert('Você só pode editar seus próprios agendamentos.');
-    //   return;
-    // }
     const idx = appointments.findIndex(a => a.id === currentApptId);
     appointments[idx] = data;
   } else { 
@@ -2831,13 +3047,6 @@ async function saveAppointment() {
 
 async function deleteAppointment() {
   if (!currentApptId) return;
-  
-  // REMOVIDA a verificação de permissão ao excluir
-  // const appt = appointments.find(a => a.id === currentApptId);
-  // if (appt && appt.userId !== currentUserId) {
-  //   alert('Você só pode excluir seus próprios agendamentos.');
-  //   return;
-  // }
   
   if (!confirm('Tem certeza que deseja excluir este agendamento?')) return;
   
@@ -2873,6 +3082,7 @@ function openRecurrenceModal() {
   document.getElementById('recStartDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('recTime').value = '';
   document.getElementById('recWeeks').value = '4';
+  document.getElementById('recFrequency').value = '7';
   
   if (consultationTypes.length > 0) {
     document.getElementById('recType').value = consultationTypes[0].id;
@@ -2899,6 +3109,7 @@ function loadRecurrenceSelect() {
 function updateRecurrencePreview() {
   const startDate = document.getElementById('recStartDate').value;
   const weeks = parseInt(document.getElementById('recWeeks').value) || 4;
+  const frequency = parseInt(document.getElementById('recFrequency').value) || 7;
   
   if (!startDate) {
     document.getElementById('recPreview').textContent = 'Selecione a data inicial';
@@ -2910,7 +3121,7 @@ function updateRecurrencePreview() {
   
   for (let i = 0; i < weeks; i++) {
     const date = new Date(start);
-    date.setDate(date.getDate() + (i * 7));
+    date.setDate(date.getDate() + (i * frequency));
     preview += '• ' + date.toLocaleDateString('pt-BR') + '\n';
   }
   
@@ -2919,6 +3130,7 @@ function updateRecurrencePreview() {
 
 document.getElementById('recStartDate')?.addEventListener('change', updateRecurrencePreview);
 document.getElementById('recWeeks')?.addEventListener('change', updateRecurrencePreview);
+document.getElementById('recFrequency')?.addEventListener('change', updateRecurrencePreview);
 
 async function saveRecurrence() {
   const patientId = document.getElementById('recPatient').value;
@@ -2927,6 +3139,7 @@ async function saveRecurrence() {
   const startDate = document.getElementById('recStartDate').value;
   const time = document.getElementById('recTime').value;
   const weeks = parseInt(document.getElementById('recWeeks').value) || 4;
+  const frequency = parseInt(document.getElementById('recFrequency').value) || 7;
   const typeId = document.getElementById('recType').value;
   const type = consultationTypes.find(t => t.id === typeId);
   const value = parseFloat(document.getElementById('recValue').value) || 0;
@@ -2938,7 +3151,7 @@ async function saveRecurrence() {
   
   for (let i = 0; i < weeks; i++) {
     const date = new Date(start);
-    date.setDate(date.getDate() + (i * 7));
+    date.setDate(date.getDate() + (i * frequency));
     
     newAppointments.push({
       id: Date.now().toString() + '_' + i,
@@ -3213,7 +3426,6 @@ function sendSelectedPendingWhatsApp() {
 async function togglePayment(id) {
   const appt = appointments.find(a => a.id === id);
   
-  // Mantida a restrição: só pode alterar pagamento dos próprios atendimentos
   if (appt.userId !== currentUserId) {
     alert('Você só pode alterar o pagamento dos seus próprios atendimentos.');
     return;
