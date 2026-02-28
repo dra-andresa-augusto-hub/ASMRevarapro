@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASM Gestão Clínica</title>
+<title>ASM Gestão Clínica – REVARA Pro</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -266,19 +266,29 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
 .view-toggle button.active{background:#1e3a5f;color:white}
 /* Legenda de cores */
 .color-legend{display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;padding:15px;background:#f7fafc;border-radius:8px;align-items:center}
-.color-legend-item{display:flex;align-items:center;gap:8px;font-size:13px}
+.color-legend-item{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:5px 10px;border-radius:5px;transition:all 0.2s}
+.color-legend-item:hover{background:#e2e8f0}
+.color-legend-item.active{background:#1e3a5f;color:white}
+.color-legend-item.active .color-box{box-shadow:0 0 0 2px white}
 .color-box{width:20px;height:20px;border-radius:4px}
+.btn-view-all{background:#1e3a5f;color:white;padding:8px 16px;border-radius:5px;cursor:pointer;font-weight:bold;border:none;font-size:13px}
+.btn-view-all:hover{background:#2c5282}
 /* Alerta de conflito */
 .conflict-alert{background:#fed7d7;border:2px solid #fc8181;color:#c53030;padding:15px;border-radius:8px;margin-bottom:20px;display:none}
 .conflict-alert.show{display:block}
 .conflict-alert strong{color:#742a2a}
+/* Estilos para seleção de recorrência */
+.recurrence-checkbox-item{display:flex;align-items:center;gap:10px;padding:10px;background:#f7fafc;border-radius:5px;margin-bottom:8px;border:2px solid #e2e8f0}
+.recurrence-checkbox-item:hover{background:#ebf8ff}
+.recurrence-checkbox-item input[type="checkbox"]{width:18px;height:18px;cursor:pointer}
+.recurrence-checkbox-item label{cursor:pointer;flex:1;margin:0;font-size:14px}
 </style>
 </head>
 <body>
 
 <div id="welcomeScreen" class="welcome-container">
   <div class="welcome-box">
-    <h1>🔷 ASM Gestão Clínica</h1>
+    <h1>🔷 ASM Gestão Clínica – REVARA Pro</h1>
     <p class="subtitle">Sistema completo para gestão de clínicas e consultórios</p>
     
     <div class="form-group" style="text-align:left;margin-top:30px">
@@ -297,13 +307,13 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
     <div class="activation-success" id="activationSuccess">Acesso autorizado! Redirecionando...</div>
     <div id="activationLoading" style="display:none;margin-top:15px"><div class="loading"></div><p style="margin-top:10px;color:#4a5568">Verificando...</p></div>
     
-    <p style="margin-top:20px;font-size:11px;color:#a0aec0">© 2024 ASM Gestão Clínica - Dra. Andresa Augusto<br>Proibida reprodução sem autorização</p>
+    <p style="margin-top:20px;font-size:11px;color:#a0aec0">© 2024 ASM Gestão Clínica – REVARA Pro<br>Dra. Andresa Augusto<br>Proibida reprodução sem autorização</p>
   </div>
 </div>
 
 <div id="mainSystem" style="display:none">
   <div class="header">
-    <h1>ASM Gestão Clínica</h1>
+    <h1>ASM Gestão Clínica – REVARA Pro</h1>
     <p id="headerSubtitle">Sistema de Gestão para Profissionais da Saúde</p>
   </div>
   <div class="user-bar">
@@ -535,9 +545,10 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         </div>
       </div>
       
-      <!-- Legenda de cores -->
+      <!-- Legenda de cores com filtro -->
       <div class="color-legend" id="colorLegend">
         <span style="font-weight:bold;color:#2d3748">Profissionais:</span>
+        <button class="btn-view-all" id="btnViewAllTherapists" onclick="clearTherapistFilter()" style="display:none;margin-left:auto">👁️ Ver Todos</button>
       </div>
       
       <!-- Alerta de conflito -->
@@ -777,14 +788,18 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         </select>
       </div>
       <div id="recurrentAppointmentsList" style="display:none;margin-top:15px;max-height:300px;overflow-y:auto">
-        <p style="font-size:13px;color:#718096;margin-bottom:10px">Agendamentos recorrentes futuros encontrados:</p>
+        <p style="font-size:13px;color:#718096;margin-bottom:10px">Selecione os agendamentos que deseja cancelar:</p>
         <div id="recurrentListContent"></div>
+        <div style="margin-top:15px;display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="selectAllRecurrentAppointments()">✓ Selecionar Todos</button>
+          <button class="btn btn-warning" onclick="clearRecurrentSelection()">✗ Limpar Seleção</button>
+        </div>
       </div>
       <div id="noRecurrentMsg" style="display:none;margin-top:15px;padding:15px;background:#f7fafc;border-radius:8px;text-align:center;color:#718096">
         Nenhum agendamento recorrente futuro encontrado para este paciente.
       </div>
-      <button class="btn btn-danger" id="btnCancelRecurrence" onclick="cancelRecurrence()" style="width:100%;margin-top:15px;display:none">
-        ❌ Cancelar Todos os Agendamentos Futuros
+      <button class="btn btn-danger" id="btnCancelRecurrence" onclick="cancelSelectedRecurrences()" style="width:100%;margin-top:15px;display:none">
+        ❌ Cancelar Agendamentos Selecionados
       </button>
     </div>
   </div>
@@ -971,7 +986,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
   </div>
   
   <div class="footer">
-    <p><strong>ASM Gestão Clínica</strong></p>
+    <p><strong>ASM Gestão Clínica – REVARA Pro</strong></p>
     <p>© 2024 Dra. Andresa Augusto - Todos os direitos reservados</p>
     <p>Proibida reprodução sem autorização</p>
   </div>
@@ -1023,6 +1038,12 @@ const PIN_VALIDITY_MINUTES = 30; // PIN válido por 30 minutos
 // Configuração de cores para terapeutas
 const therapistColors = ['green', 'orange', 'yellow', 'blue', 'pink', 'red'];
 let calendarViewMode = 'month'; // 'month' ou 'week'
+
+// NOVO: Variável para filtro de terapeuta ativo na agenda
+let activeTherapistFilter = null; // null = todos os terapeutas
+
+// NOVO: Variável para seleção de agendamentos recorrentes
+let selectedRecurrentAppointments = new Set();
 
 const professionConfig = {
   fisioterapia: { name: 'Fisioterapia', registry: 'CREFITO', placeholder: '00 0000 F' },
@@ -1319,6 +1340,7 @@ function logout() {
   localStorage.clear();
   pinVerified = false;
   pinVerifiedTime = null;
+  activeTherapistFilter = null; // Limpa filtro ao sair
   location.reload();
 }
 
@@ -1574,6 +1596,7 @@ function switchToUser(userId) {
     localStorage.setItem('asm_user_id', userId);
     pinVerified = false;
     pinVerifiedTime = null;
+    activeTherapistFilter = null; // Limpa filtro ao trocar usuário
     location.reload();
   }
 }
@@ -2520,7 +2543,7 @@ function generateReceiptPDF() {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica', 105, 290, { align: 'center' });
+    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica – REVARA Pro', 105, 290, { align: 'center' });
     doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 295, { align: 'center' });
   }
   
@@ -2740,7 +2763,7 @@ function generatePDFReport() {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica', 105, 290, { align: 'center' });
+    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica – REVARA Pro', 105, 290, { align: 'center' });
     doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 295, { align: 'center' });
   }
   
@@ -2818,7 +2841,7 @@ function generatePatientAppointmentsPDF() {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica', 105, 290, { align: 'center' });
+    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica – REVARA Pro', 105, 290, { align: 'center' });
     doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 295, { align: 'center' });
   }
   
@@ -2829,20 +2852,27 @@ function generatePatientAppointmentsPDF() {
 function updateDashboard() {
   if (currentUserRole === 'secretaria') return;
   
-  const now = new Date();
-  const currentMonth = now.toISOString().slice(0, 7);
-  
-  const monthAppts = appointments.filter(a => 
-    !a.cancelled && 
-    a.date.startsWith(currentMonth) && 
-    a.userId === currentUserId
-  );
+  // NOVO: Aplica filtro de terapeuta ativo no dashboard também
+  let monthAppts;
+  if (activeTherapistFilter) {
+    monthAppts = appointments.filter(a => 
+      !a.cancelled && 
+      a.date.startsWith(new Date().toISOString().slice(0, 7)) && 
+      a.userId === activeTherapistFilter
+    );
+  } else {
+    monthAppts = appointments.filter(a => 
+      !a.cancelled && 
+      a.date.startsWith(new Date().toISOString().slice(0, 7)) && 
+      a.userId === currentUserId
+    );
+  }
   
   const totalRevenue = monthAppts.reduce((s, a) => s + parseFloat(a.value || 0), 0);
   const pending = appointments.filter(a => 
     !a.cancelled && 
     !a.paid && 
-    a.userId === currentUserId
+    a.userId === (activeTherapistFilter || currentUserId)
   ).reduce((s, a) => s + parseFloat(a.value || 0), 0);
   
   document.getElementById('dashTotalRevenue').textContent = 'R$ ' + totalRevenue.toFixed(2);
@@ -2858,11 +2888,15 @@ function renderCharts() {
   
   const now = new Date();
   const currentMonth = now.toISOString().slice(0, 7);
+  
+  // NOVO: Aplica filtro de terapeuta ativo nos gráficos
+  const filterUserId = activeTherapistFilter || currentUserId;
+  
   const monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.paid && 
     a.date.startsWith(currentMonth) && 
-    a.userId === currentUserId
+    a.userId === filterUserId
   );
   
   const byType = {};
@@ -2923,7 +2957,7 @@ function renderCharts() {
     monthlyData[key] = 0;
   }
   
-  appointments.filter(a => !a.cancelled && a.paid && a.userId === currentUserId).forEach(appt => {
+  appointments.filter(a => !a.cancelled && a.paid && a.userId === filterUserId).forEach(appt => {
     const month = appt.date.slice(0, 7);
     if (monthlyData.hasOwnProperty(month)) {
       monthlyData[month] += parseFloat(appt.value || 0);
@@ -2967,7 +3001,7 @@ function getTherapistColor(userId) {
   return therapistColors[index % therapistColors.length];
 }
 
-// FUNÇÃO PARA RENDERIZAR LEGENDA DE CORES
+// NOVO: FUNÇÃO PARA RENDERIZAR LEGENDA DE CORES COM FILTRO
 function renderColorLegend() {
   const container = document.getElementById('colorLegend');
   if (!container) return;
@@ -2983,12 +3017,59 @@ function renderColorLegend() {
     const color = therapistColors[index % therapistColors.length];
     const item = document.createElement('div');
     item.className = 'color-legend-item';
+    item.dataset.userId = user.id;
+    item.onclick = () => filterByTherapist(user.id);
+    
+    // Verifica se este terapeuta está ativo no filtro
+    if (activeTherapistFilter === user.id) {
+      item.classList.add('active');
+    }
+    
     item.innerHTML = `
       <div class="color-box color-${color}" style="background:${getColorHex(color)}"></div>
       <span>${user.name.split(' ')[0]}</span>
     `;
     container.appendChild(item);
   });
+  
+  // Adiciona botão "Ver Todos" se houver filtro ativo
+  const btnViewAll = document.getElementById('btnViewAllTherapists');
+  if (btnViewAll) {
+    btnViewAll.style.display = activeTherapistFilter ? 'inline-block' : 'none';
+  }
+}
+
+// NOVO: FUNÇÃO PARA FILTRAR POR TERAPEUTA
+function filterByTherapist(userId) {
+  if (activeTherapistFilter === userId) {
+    // Se já está selecionado, mantém selecionado (não toggle)
+    return;
+  }
+  
+  activeTherapistFilter = userId;
+  renderColorLegend();
+  renderCalendar();
+  
+  // Atualiza também o financeiro e fluxo de caixa se estiverem visíveis
+  updateFinancialSummary();
+  renderFinancialTable();
+  renderCashFlow();
+  renderReports();
+  updateDashboard();
+}
+
+// NOVO: FUNÇÃO PARA LIMPAR FILTRO DE TERAPEUTA
+function clearTherapistFilter() {
+  activeTherapistFilter = null;
+  renderColorLegend();
+  renderCalendar();
+  
+  // Atualiza também o financeiro e fluxo de caixa
+  updateFinancialSummary();
+  renderFinancialTable();
+  renderCashFlow();
+  renderReports();
+  updateDashboard();
 }
 
 function getColorHex(colorName) {
@@ -3107,6 +3188,11 @@ function renderMonthCalendar() {
       return parseInt(parts[0]) === year && (parseInt(parts[1]) - 1) === month && parseInt(parts[2]) === day && !a.cancelled;
     });
     
+    // NOVO: Aplica filtro de terapeuta se ativo
+    if (activeTherapistFilter) {
+      dayAppointments = dayAppointments.filter(a => a.userId === activeTherapistFilter);
+    }
+    
     // ORDENAÇÃO POR HORÁRIO (do menor para o maior)
     dayAppointments.sort((a, b) => a.time.localeCompare(b.time));
     
@@ -3176,6 +3262,11 @@ function renderWeekCalendar() {
              parseInt(parts[2]) === dayDate.getDate() && 
              !a.cancelled;
     });
+    
+    // NOVO: Aplica filtro de terapeuta se ativo
+    if (activeTherapistFilter) {
+      dayAppointments = dayAppointments.filter(a => a.userId === activeTherapistFilter);
+    }
     
     // ORDENAÇÃO POR HORÁRIO (do menor para o maior)
     dayAppointments.sort((a, b) => a.time.localeCompare(b.time));
@@ -3488,6 +3579,8 @@ async function saveRecurrence() {
 }
 
 function openCancelRecurrenceModal() {
+  // Limpa seleção anterior
+  selectedRecurrentAppointments.clear();
   document.getElementById('cancelRecPatient').value = '';
   document.getElementById('recurrentAppointmentsList').style.display = 'none';
   document.getElementById('noRecurrentMsg').style.display = 'none';
@@ -3508,6 +3601,7 @@ function loadCancelRecurrenceSelect() {
   });
 }
 
+// NOVO: FUNÇÃO PARA MOSTRAR AGENDAMENTOS RECORRENTES COM CHECKBOXES
 function showRecurrentAppointments() {
   const patientId = document.getElementById('cancelRecPatient').value;
   const listContainer = document.getElementById('recurrentAppointmentsList');
@@ -3524,8 +3618,7 @@ function showRecurrentAppointments() {
   
   const today = new Date().toISOString().split('T')[0];
   
-  // CORREÇÃO 4: Busca agendamentos recorrentes futuros de forma mais precisa
-  // Agora verifica se o agendamento tem isRecurrent=true OU se faz parte de uma série
+  // Busca agendamentos recorrentes futuros de forma mais precisa
   const futureAppts = appointments.filter(a => 
     a.patientId === patientId && 
     !a.cancelled && 
@@ -3544,17 +3637,61 @@ function showRecurrentAppointments() {
     
     let html = '<div style="background:#f7fafc;padding:15px;border-radius:8px;">';
     html += '<p style="font-weight:bold;margin-bottom:10px;color:#1e3a5f;">' + futureAppts.length + ' agendamento(s) recorrente(s) encontrado(s):</p>';
-    html += '<ul style="list-style:none;padding:0;">';
     
     futureAppts.forEach(appt => {
-      html += `<li style="padding:8px 0;border-bottom:1px solid #e2e8f0;">📅 ${formatDate(appt.date)} às ${appt.time} - ${appt.typeName || appt.type}</li>`;
+      const isSelected = selectedRecurrentAppointments.has(appt.id);
+      html += `
+        <div class="recurrence-checkbox-item">
+          <input type="checkbox" id="rec_${appt.id}" ${isSelected ? 'checked' : ''} onchange="toggleRecurrentAppointment('${appt.id}')">
+          <label for="rec_${appt.id}">
+            📅 ${formatDate(appt.date)} às ${appt.time} - ${appt.typeName || appt.type}
+          </label>
+        </div>
+      `;
     });
     
-    html += '</ul></div>';
+    html += '</div>';
     listContent.innerHTML = html;
     
     window.currentRecurrentPatientId = patientId;
     window.currentRecurrentAppointments = futureAppts;
+    
+    // Atualiza texto do botão
+    updateCancelButtonText();
+  }
+}
+
+// NOVO: FUNÇÃO PARA ALTERNAR SELEÇÃO DE AGENDAMENTO RECORRENTE
+function toggleRecurrentAppointment(apptId) {
+  if (selectedRecurrentAppointments.has(apptId)) {
+    selectedRecurrentAppointments.delete(apptId);
+  } else {
+    selectedRecurrentAppointments.add(apptId);
+  }
+  updateCancelButtonText();
+}
+
+// NOVO: FUNÇÃO PARA SELECIONAR TODOS OS AGENDAMENTOS RECORRENTES
+function selectAllRecurrentAppointments() {
+  const allAppts = window.currentRecurrentAppointments || [];
+  allAppts.forEach(appt => selectedRecurrentAppointments.add(appt.id));
+  showRecurrentAppointments(); // Re-renderiza para atualizar checkboxes
+}
+
+// NOVO: FUNÇÃO PARA LIMPAR SELEÇÃO DE AGENDAMENTOS RECORRENTES
+function clearRecurrentSelection() {
+  selectedRecurrentAppointments.clear();
+  showRecurrentAppointments(); // Re-renderiza para atualizar checkboxes
+}
+
+// NOVO: FUNÇÃO PARA ATUALIZAR TEXTO DO BOTÃO DE CANCELAMENTO
+function updateCancelButtonText() {
+  const btn = document.getElementById('btnCancelRecurrence');
+  const count = selectedRecurrentAppointments.size;
+  if (count === 0) {
+    btn.textContent = '❌ Cancelar Todos os Agendamentos Futuros';
+  } else {
+    btn.textContent = `❌ Cancelar ${count} Agendamento(s) Selecionado(s)`;
   }
 }
 
@@ -3573,22 +3710,37 @@ function isPartOfRecurrenceSeries(appt, patientId) {
   return sameTimeAppts.length >= 2;
 }
 
-async function cancelRecurrence() {
+// NOVO: FUNÇÃO PARA CANCELAR AGENDAMENTOS SELECIONADOS (ou todos se nenhum selecionado)
+async function cancelSelectedRecurrences() {
   const patientId = window.currentRecurrentPatientId;
-  const apptsToCancel = window.currentRecurrentAppointments;
+  const allAppts = window.currentRecurrentAppointments || [];
   
-  if (!patientId || !apptsToCancel || apptsToCancel.length === 0) {
+  if (!patientId || !allAppts || allAppts.length === 0) {
     alert('Nenhum agendamento para cancelar.');
     return;
   }
   
+  // Determina quais agendamentos cancelar
+  let apptsToCancel;
+  if (selectedRecurrentAppointments.size === 0) {
+    // Se nenhum selecionado, cancela todos
+    apptsToCancel = allAppts;
+  } else {
+    // Cancela apenas os selecionados
+    apptsToCancel = allAppts.filter(a => selectedRecurrentAppointments.has(a.id));
+  }
+  
   const patient = patients.find(p => p.id === patientId);
-  if (!confirm(`Deseja cancelar ${apptsToCancel.length} agendamento(s) recorrente(s) de ${patient.name}?\n\n⚠️ Esta ação não pode ser desfeita!`)) {
+  const confirmMsg = selectedRecurrentAppointments.size === 0 
+    ? `Deseja cancelar TODOS os ${apptsToCancel.length} agendamento(s) recorrente(s) de ${patient.name}?\n\n⚠️ Esta ação não pode ser desfeita!`
+    : `Deseja cancelar ${apptsToCancel.length} agendamento(s) selecionado(s) de ${patient.name}?\n\n⚠️ Esta ação não pode ser desfeita!`;
+  
+  if (!confirm(confirmMsg)) {
     return;
   }
   
   try {
-    // CORREÇÃO 4: Cancela apenas os agendamentos selecionados, não todos do paciente
+    // Cancela apenas os agendamentos selecionados (ou todos se nenhum selecionado)
     const apptIdsToCancel = apptsToCancel.map(a => a.id);
     
     // Marca como cancelados em vez de remover completamente (para manter histórico)
@@ -3606,6 +3758,9 @@ async function cancelRecurrence() {
     renderCalendar();
     updateFinancialSummary();
     updateDashboard();
+    
+    // Limpa seleção
+    selectedRecurrentAppointments.clear();
   } catch (error) {
     alert('Erro ao cancelar recorrência: ' + error.message);
   }
@@ -3638,7 +3793,7 @@ function loadPatientSelect() {
   });
 }
 
-// CORREÇÃO 1: Filtro de mês na área Financeiro
+// CORREÇÃO 1: Filtro de mês na área Financeiro COM FILTRO DE TERAPEUTA
 function renderFinancialTable() {
   if (currentUserRole === 'secretaria') return;
   
@@ -3650,11 +3805,14 @@ function renderFinancialTable() {
   // Pega o mês selecionado no filtro (ou mês atual se não houver)
   const selectedMonth = document.getElementById('financialMonth')?.value;
   
-  // Filtra por userId do profissional logado E pelo mês selecionado
+  // NOVO: Determina qual terapeuta filtrar (ativo na legenda ou o logado)
+  const filterUserId = activeTherapistFilter || currentUserId;
+  
+  // Filtra por userId do profissional (ativo ou logado) E pelo mês selecionado
   let pendingAppts = appointments.filter(a => 
     !a.cancelled && 
     !a.paid && 
-    a.userId === currentUserId
+    a.userId === filterUserId
   );
   
   // Aplica filtro de mês se existir
@@ -3699,8 +3857,9 @@ function toggleFinancialSelection(apptId) {
 
 function toggleAllFinancial() {
   const selectedMonth = document.getElementById('financialMonth')?.value;
+  const filterUserId = activeTherapistFilter || currentUserId;
   
-  let pendingAppts = appointments.filter(a => !a.cancelled && !a.paid && a.userId === currentUserId);
+  let pendingAppts = appointments.filter(a => !a.cancelled && !a.paid && a.userId === filterUserId);
   
   if (selectedMonth) {
     pendingAppts = pendingAppts.filter(a => a.date.startsWith(selectedMonth));
@@ -3713,8 +3872,9 @@ function toggleAllFinancial() {
 
 function selectAllPending() {
   const selectedMonth = document.getElementById('financialMonth')?.value;
+  const filterUserId = activeTherapistFilter || currentUserId;
   
-  let pendingAppts = appointments.filter(a => !a.cancelled && !a.paid && a.userId === currentUserId);
+  let pendingAppts = appointments.filter(a => !a.cancelled && !a.paid && a.userId === filterUserId);
   
   if (selectedMonth) {
     pendingAppts = pendingAppts.filter(a => a.date.startsWith(selectedMonth));
@@ -3803,11 +3963,15 @@ async function togglePayment(id) {
   updateDashboard();
 }
 
+// NOVO: FUNÇÃO PARA ATUALIZAR RESUMO FINANCEIRO COM FILTRO DE TERAPEUTA
 function updateFinancialSummary() {
   if (currentUserRole === 'secretaria') return;
   
-  // Filtra apenas os agendamentos onde o profissional logado é o responsável
-  const activeAppts = appointments.filter(a => !a.cancelled && a.userId === currentUserId);
+  // NOVO: Determina qual terapeuta filtrar (ativo na legenda ou o logado)
+  const filterUserId = activeTherapistFilter || currentUserId;
+  
+  // Filtra apenas os agendamentos onde o profissional filtrado é o responsável
+  const activeAppts = appointments.filter(a => !a.cancelled && a.userId === filterUserId);
   const received = activeAppts.filter(a => a.paid).reduce((s, a) => s + parseFloat(a.value || 0), 0);
   const pending = activeAppts.filter(a => !a.paid).reduce((s, a) => s + parseFloat(a.value || 0), 0);
   
@@ -3823,20 +3987,25 @@ function showCashFlowTab(tab) {
   document.getElementById('cf' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.add('active');
 }
 
+// NOVO: FUNÇÃO PARA RENDERIZAR FLUXO DE CAIXA COM FILTRO DE TERAPEUTA
 function renderCashFlow() {
   if (currentUserRole === 'secretaria') return;
   
   const month = document.getElementById('cashFlowMonth').value;
   if (!month) return;
   
-  // Filtra apenas os agendamentos do profissional logado
+  // NOVO: Determina qual terapeuta filtrar (ativo na legenda ou o logado)
+  const filterUserId = activeTherapistFilter || currentUserId;
+  
+  // Filtra apenas os agendamentos do profissional filtrado
   const entries = appointments.filter(a => 
     !a.cancelled && 
     a.paid && 
     a.date.startsWith(month) && 
-    a.userId === currentUserId
+    a.userId === filterUserId
   );
   
+  // Despesas são individuais por usuário, então filtra pelo usuário logado ou filtrado
   const monthExpenses = expenses.filter(e => 
     e.date.startsWith(month)
   );
@@ -3911,17 +4080,21 @@ async function deleteExpense(id) {
   renderCashFlow();
 }
 
+// NOVO: FUNÇÃO PARA RENDERIZAR RELATÓRIOS COM FILTRO DE TERAPEUTA
 function renderReports() {
   if (currentUserRole === 'secretaria') return;
   
   const month = document.getElementById('reportMonth').value;
   if (!month) return;
   
-  // Filtra apenas os agendamentos do profissional logado
+  // NOVO: Determina qual terapeuta filtrar (ativo na legenda ou o logado)
+  const filterUserId = activeTherapistFilter || currentUserId;
+  
+  // Filtra apenas os agendamentos do profissional filtrado
   const monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(month) && 
-    a.userId === currentUserId
+    a.userId === filterUserId
   );
   
   const total = monthAppts.reduce((s, a) => s + parseFloat(a.value || 0), 0);
@@ -3966,11 +4139,14 @@ function generateProductivityReportPDF() {
   const [year, mon] = month.split('-');
   const monthName = new Date(parseInt(year), parseInt(mon) - 1).toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
   
-  // Pega apenas os agendamentos do profissional logado
+  // NOVO: Aplica filtro de terapeuta ativo
+  const filterUserId = activeTherapistFilter || currentUserId;
+  
+  // Pega apenas os agendamentos do profissional filtrado
   const monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(month) && 
-    a.userId === currentUserId
+    a.userId === filterUserId
   );
   
   // Agrupa por paciente (cada paciente aparece uma vez)
@@ -4053,7 +4229,7 @@ function generateProductivityReportPDF() {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica', 105, 285, { align: 'center' });
+    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica – REVARA Pro', 105, 285, { align: 'center' });
     doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 290, { align: 'center' });
   }
   
@@ -4222,7 +4398,7 @@ function generatePatientAppointmentsReportPDF() {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica', 105, 285, { align: 'center' });
+    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica – REVARA Pro', 105, 285, { align: 'center' });
     doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 290, { align: 'center' });
   }
   
@@ -4238,17 +4414,20 @@ function generateDashboardPDF() {
   const now = new Date();
   const currentMonth = now.toISOString().slice(0, 7);
   
+  // NOVO: Aplica filtro de terapeuta ativo
+  const filterUserId = activeTherapistFilter || currentUserId;
+  
   const monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(currentMonth) && 
-    a.userId === currentUserId
+    a.userId === filterUserId
   );
   
   const totalRevenue = monthAppts.reduce((s, a) => s + parseFloat(a.value || 0), 0);
   const pending = appointments.filter(a => 
     !a.cancelled && 
     !a.paid && 
-    a.userId === currentUserId
+    a.userId === filterUserId
   ).reduce((s, a) => s + parseFloat(a.value || 0), 0);
   
   doc.setFillColor(30, 58, 95);
@@ -4285,7 +4464,7 @@ function generateDashboardPDF() {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica', 105, 290, { align: 'center' });
+    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica – REVARA Pro', 105, 290, { align: 'center' });
     doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 295, { align: 'center' });
   }
   
@@ -4301,10 +4480,13 @@ function generateMonthlyReportPDF() {
   const [year, mon] = month.split('-').map(Number);
   const monthName = new Date(year, mon - 1).toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
   
+  // NOVO: Aplica filtro de terapeuta ativo
+  const filterUserId = activeTherapistFilter || currentUserId;
+  
   const monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(month) && 
-    a.userId === currentUserId
+    a.userId === filterUserId
   );
   
   doc.setFillColor(30, 58, 95);
@@ -4364,23 +4546,29 @@ function generateMonthlyReportPDF() {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica', 105, 290, { align: 'center' });
+    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica – REVARA Pro', 105, 290, { align: 'center' });
     doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 295, { align: 'center' });
   }
   
   doc.save('Relatorio_Mensal_' + month + '.pdf');
 }
 
+// NOVO: FUNÇÃO PARA EXPORTAR AGENDA COM FILTRO DE TERAPEUTA
 function exportAgendaExcel() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const monthStr = String(month + 1).padStart(2, '0');
   const monthKey = year + '-' + monthStr;
   
-  const monthAppts = appointments.filter(a => 
+  let monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(monthKey)
   ).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+  
+  // NOVO: Aplica filtro de terapeuta se ativo
+  if (activeTherapistFilter) {
+    monthAppts = monthAppts.filter(a => a.userId === activeTherapistFilter);
+  }
   
   if (monthAppts.length === 0) {
     alert('Nenhum agendamento encontrado para este mês.');
@@ -4407,11 +4595,13 @@ function exportAgendaExcel() {
   XLSX.utils.book_append_sheet(wb, ws, 'Agenda');
   
   const monthName = new Date(year, month).toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
-  const fileName = 'Agenda_' + monthName.replace(/\s+/g, '_') + '.xlsx';
+  const therapistSuffix = activeTherapistFilter ? '_Filtrado' : '';
+  const fileName = 'Agenda_' + monthName.replace(/\s+/g, '_') + therapistSuffix + '.xlsx';
   
   XLSX.writeFile(wb, fileName);
 }
 
+// NOVO: FUNÇÃO PARA EXPORTAR AGENDA PDF COM FILTRO DE TERAPEUTA
 function exportAgendaPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -4423,10 +4613,15 @@ function exportAgendaPDF() {
   const monthKey = year + '-' + monthStr;
   const monthName = new Date(year, month).toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
   
-  const monthAppts = appointments.filter(a => 
+  let monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(monthKey)
   ).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+  
+  // NOVO: Aplica filtro de terapeuta se ativo
+  if (activeTherapistFilter) {
+    monthAppts = monthAppts.filter(a => a.userId === activeTherapistFilter);
+  }
   
   if (monthAppts.length === 0) {
     alert('Nenhum agendamento encontrado para este mês.');
@@ -4451,8 +4646,17 @@ function exportAgendaPDF() {
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
   doc.text('Período: ' + monthName, 10, 70);
-  doc.text('Total de Agendamentos: ' + monthAppts.length, 10, 78);
-  doc.line(10, 85, 200, 85);
+  
+  // NOVO: Indica se está filtrado
+  if (activeTherapistFilter) {
+    const filteredUser = clinicUsers.find(u => u.id === activeTherapistFilter);
+    doc.text('Filtrado por: ' + (filteredUser ? filteredUser.name : 'Terapeuta'), 10, 78);
+    doc.text('Total de Agendamentos: ' + monthAppts.length, 10, 86);
+  } else {
+    doc.text('Total de Agendamentos: ' + monthAppts.length, 10, 78);
+  }
+  
+  doc.line(10, activeTherapistFilter ? 93 : 85, 200, activeTherapistFilter ? 93 : 85);
   
   const tableData = monthAppts.map(appt => {
     const patient = patients.find(p => p.id === appt.patientId);
@@ -4466,7 +4670,7 @@ function exportAgendaPDF() {
   });
   
   doc.autoTable({
-    startY: 95,
+    startY: activeTherapistFilter ? 103 : 95,
     head: [['Data', 'Horário', 'Paciente', 'Profissional']],
     body: tableData,
     theme: 'striped',
@@ -4479,11 +4683,12 @@ function exportAgendaPDF() {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica', 105, 290, { align: 'center' });
+    doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica – REVARA Pro', 105, 290, { align: 'center' });
     doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 295, { align: 'center' });
   }
   
-  const fileName = 'Agenda_' + monthName.replace(/\s+/g, '_') + '.pdf';
+  const therapistSuffix = activeTherapistFilter ? '_Filtrado' : '';
+  const fileName = 'Agenda_' + monthName.replace(/\s+/g, '_') + therapistSuffix + '.pdf';
   doc.save(fileName);
 }
 
