@@ -22,7 +22,7 @@ body{font-family:Arial,sans-serif;background:#f0f2f5}
 .login-btn{width:100%;padding:14px;background:#1e3a5f;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;font-weight:bold}
 .login-btn:hover{background:#2c5282}
 .login-error{color:#e53e3e;margin-top:15px;display:none;font-size:14px}
-.header{background:#1e3a5f;color:white;padding:15px;text-align:center}
+.header{background:#1e3a5f;color:white;padding:15px;text-align:center;position:relative}
 .header h1{margin:0;font-size:24px}
 .header p{margin:5px 0 0 0;font-size:14px;opacity:0.9}
 .user-bar{background:#152a45;color:white;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
@@ -282,14 +282,28 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
 .recurrence-checkbox-item:hover{background:#ebf8ff}
 .recurrence-checkbox-item input[type="checkbox"]{width:18px;height:18px;cursor:pointer}
 .recurrence-checkbox-item label{cursor:pointer;flex:1;margin:0;font-size:14px}
+/* NOVO: Logo ASM em círculo */
+.asm-logo-container{display:flex;flex-direction:column;align-items:center;margin-bottom:20px}
+.asm-logo-circle{width:80px;height:80px;background:#1e3a5f;border:3px solid #d69e2e;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+.asm-logo-text{color:white;font-size:28px;font-weight:bold;letter-spacing:2px}
+.asm-logo-subtitle{color:#1e3a5f;font-size:14px;font-weight:bold;letter-spacing:1px}
+/* NOVO: Modal de primeiro acesso */
+.first-access-modal .modal-content{max-width:500px}
+.first-access-form{background:#f7fafc;padding:20px;border-radius:10px;margin-top:15px}
 </style>
 </head>
 <body>
 
+<!-- TELA DE BOAS-VINDAS -->
 <div id="welcomeScreen" class="welcome-container">
   <div class="welcome-box">
-    <h1>🔷 ASM Gestão Clínica – REVARA Pro</h1>
-    <p class="subtitle">Sistema completo para gestão de clínicas e consultórios</p>
+    <!-- NOVO: Logo ASM em círculo azul marinho com borda dourada -->
+    <div class="asm-logo-container">
+      <div class="asm-logo-circle">
+        <span class="asm-logo-text">ASM</span>
+      </div>
+      <div class="asm-logo-subtitle">Gestão Clínica – REVARA Pro</div>
+    </div>
     
     <div class="form-group" style="text-align:left;margin-top:30px">
       <label style="font-weight:bold;color:#2d3748;margin-bottom:8px;display:block">CPF</label>
@@ -311,11 +325,56 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
   </div>
 </div>
 
+<!-- NOVO: MODAL DE PRIMEIRO ACESSO (CADASTRO DE DADOS) -->
+<div class="modal" id="firstAccessModal">
+  <div class="modal-content first-access-modal">
+    <div class="modal-header">
+      <h3>👋 Bem-vindo! Complete seu cadastro</h3>
+    </div>
+    <p style="color:#718096;margin-bottom:15px;font-size:14px">Este é seu primeiro acesso. Precisamos de alguns dados para completar seu cadastro.</p>
+    
+    <div class="first-access-form">
+      <div class="form-group">
+        <label>Nome Completo *</label>
+        <input type="text" id="firstAccessName" placeholder="Seu nome completo">
+      </div>
+      <div class="form-group">
+        <label>CPF *</label>
+        <input type="text" id="firstAccessCPF" placeholder="000.000.000-00" maxlength="14" oninput="this.value=formatCPF(this.value)">
+      </div>
+      <div class="form-group">
+        <label>WhatsApp *</label>
+        <input type="tel" id="firstAccessWhatsApp" placeholder="(00) 00000-0000">
+      </div>
+      <div class="form-group">
+        <label>E-mail *</label>
+        <input type="email" id="firstAccessEmail" placeholder="seu@email.com">
+      </div>
+    </div>
+    
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" onclick="saveFirstAccessData()" style="width:100%">💾 Salvar e Continuar</button>
+    </div>
+    
+    <p style="margin-top:15px;font-size:12px;color:#a0aec0;text-align:center">Estes dados serão salvos para contato e suporte.</p>
+  </div>
+</div>
+
+<!-- SISTEMA PRINCIPAL -->
 <div id="mainSystem" style="display:none">
   <div class="header">
-    <h1>ASM Gestão Clínica – REVARA Pro</h1>
-    <p id="headerSubtitle">Sistema de Gestão para Profissionais da Saúde</p>
+    <!-- NOVO: Logo ASM no header -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:15px;margin-bottom:10px">
+      <div class="asm-logo-circle" style="width:50px;height:50px;border-width:2px;margin:0">
+        <span class="asm-logo-text" style="font-size:18px">ASM</span>
+      </div>
+      <div style="text-align:left">
+        <h1 style="margin:0;font-size:24px">Gestão Clínica – REVARA Pro</h1>
+        <p id="headerSubtitle" style="margin:0;font-size:14px;opacity:0.9">Sistema de Gestão para Profissionais da Saúde</p>
+      </div>
+    </div>
   </div>
+  
   <div class="user-bar">
     <div class="user-bar-left">
       <span>👤 <span id="currentUserName">Profissional</span> | <span id="currentUserSpecialty">---</span> | <span id="currentUserRegistry">---</span></span>
@@ -329,6 +388,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
       <button onclick="logout()">🚪 Sair</button>
     </div>
   </div>
+  
   <div class="nav" id="mainNav">
     <button class="active" onclick="showSection('dashboard')">📊 Dashboard</button>
     <button onclick="showSection('agenda')">📅 Agenda</button>
@@ -338,7 +398,9 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
     <button onclick="showSection('relatorios')">📈 Relatórios</button>
     <button onclick="showSection('configuracoes')">⚙️ Configurações</button>
   </div>
+  
   <div class="container">
+    <!-- DASHBOARD -->
     <div id="dashboard" class="section active">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <h2>📊 Dashboard</h2>
@@ -372,6 +434,8 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         <div class="chart-container" style="height:250px"><canvas id="chartMonthly"></canvas></div>
       </div>
     </div>
+    
+    <!-- CONFIGURAÇÕES -->
     <div id="configuracoes" class="section">
       <h2>⚙️ Configurações</h2>
       <div class="tabs">
@@ -524,6 +588,8 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         </div>
       </div>
     </div>
+    
+    <!-- AGENDA -->
     <div id="agenda" class="section">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <h2>📅 Agenda Compartilhada</h2>
@@ -545,7 +611,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         </div>
       </div>
       
-      <!-- Legenda de cores com filtro -->
+      <!-- Legenda de cores com filtro e botão de reverter -->
       <div class="color-legend" id="colorLegend">
         <span style="font-weight:bold;color:#2d3748">Profissionais:</span>
         <button class="btn-view-all" id="btnViewAllTherapists" onclick="clearTherapistFilter()" style="display:none;margin-left:auto">👁️ Ver Todos</button>
@@ -566,6 +632,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
       </div>
     </div>
     
+    <!-- PACIENTES -->
     <div id="pacientes" class="section">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <h2>👥 Pacientes</h2>
@@ -580,9 +647,9 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
       </div>
     </div>
     
+    <!-- FINANCEIRO -->
     <div id="financeiro" class="section">
       <h2>💰 Meu Financeiro</h2>
-      <!-- FILTRO DE MÊS ADICIONADO -->
       <div class="form-group" style="max-width:300px;margin-bottom:20px">
         <label>Mês/Ano</label>
         <input type="month" id="financialMonth" onchange="renderFinancialTable()">
@@ -593,7 +660,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         <div class="summary-card blue"><h3 id="totalSessions">0</h3><p>Meus Atendimentos</p></div>
       </div>
       <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-whatsapp" onclick="sendSelectedPendingWhatsApp()" id="btnCobrarSelecionados" style="display:none">📱 Cobrança</button>
+        <button class="btn btn-whatsapp" onclick="sendSelectedPendingWhatsApp()" id="btnCobrarSelecionados" style="display:none">📱 Cobrar Selecionados (<span id="selectedCount">0</span>)</button>
         <button class="btn btn-primary" onclick="selectAllPending()">✓ Selecionar Todos Pendentes</button>
         <button class="btn btn-warning" onclick="clearSelection()">✗ Limpar Seleção</button>
       </div>
@@ -613,6 +680,8 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         <tbody id="financialTable"></tbody>
       </table>
     </div>
+    
+    <!-- FLUXO DE CAIXA -->
     <div id="fluxo" class="section">
       <h2>📊 Meu Fluxo de Caixa</h2>
       <div class="form-group" style="max-width:300px">
@@ -642,6 +711,8 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         </table>
       </div>
     </div>
+    
+    <!-- RELATÓRIOS -->
     <div id="relatorios" class="section">
       <h2>📈 Meus Relatórios</h2>
       <div class="form-group" style="max-width:300px">
@@ -656,7 +727,6 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         <button class="btn btn-pdf" onclick="generateMonthlyReportPDF()">📕 Gerar PDF do Relatório</button>
         <button class="btn btn-excel" onclick="exportPatientReportExcel()">📊 Excel Atendimentos</button>
         <button class="btn btn-pdf" onclick="generatePatientAppointmentsReportPDF()" style="background:#805ad5">📋 PDF Atendimentos por Paciente</button>
-        <!-- NOVO BOTÃO DE PRODUTIVIDADE -->
         <button class="btn btn-success" onclick="generateProductivityReportPDF()" style="background:#38a169">📈 PDF Produtividade</button>
       </div>
       <table>
@@ -666,6 +736,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
     </div>
   </div>
   
+  <!-- MODAIS -->
   <div class="modal" id="appointmentModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -1033,16 +1104,16 @@ let currentPin = '';
 let targetSection = '';
 let pinVerified = false;
 let pinVerifiedTime = null;
-const PIN_VALIDITY_MINUTES = 30; // PIN válido por 30 minutos
+const PIN_VALIDITY_MINUTES = 30;
 
 // Configuração de cores para terapeutas
 const therapistColors = ['green', 'orange', 'yellow', 'blue', 'pink', 'red'];
-let calendarViewMode = 'month'; // 'month' ou 'week'
+let calendarViewMode = 'month';
 
-// NOVO: Variável para filtro de terapeuta ativo na agenda
-let activeTherapistFilter = null; // null = todos os terapeutas
+// Variável para filtro de terapeuta ativo na agenda
+let activeTherapistFilter = null;
 
-// NOVO: Variável para seleção de agendamentos recorrentes
+// Variável para seleção de agendamentos recorrentes
 let selectedRecurrentAppointments = new Set();
 
 const professionConfig = {
@@ -1097,12 +1168,10 @@ function formatCPF(cpf) {
 function formatCPFCNPJ(input) {
   let value = input.value.replace(/\D/g, '');
   if (value.length <= 11) {
-    // CPF
     value = value.replace(/(\d{3})(\d)/, '$1.$2');
     value = value.replace(/(\d{3})(\d)/, '$1.$2');
     value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   } else {
-    // CNPJ
     value = value.replace(/^(\d{2})(\d)/, '$1.$2');
     value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
     value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
@@ -1204,6 +1273,13 @@ async function checkExistingUsers() {
   clinicUsers = Object.entries(users).map(([id, data]) => ({id, ...data}));
   
   if (clinicUsers.length === 0) {
+    // NOVO: Verifica se é primeiro acesso para mostrar modal de cadastro
+    const firstAccessData = await database.ref(userDataPath + '/firstAccessData').once('value');
+    if (!firstAccessData.exists()) {
+      showFirstAccessModal();
+      return;
+    }
+    
     const newUserId = 'user_' + Date.now();
     const defaultUser = {
       name: 'Profissional',
@@ -1225,6 +1301,72 @@ async function checkExistingUsers() {
     currentUserId = clinicUsers[0].id;
     localStorage.setItem('asm_user_id', currentUserId);
     loadDataFromFirebase();
+  }
+}
+
+// NOVO: FUNÇÃO PARA MOSTRAR MODAL DE PRIMEIRO ACESSO
+function showFirstAccessModal() {
+  document.getElementById('firstAccessModal').classList.add('active');
+}
+
+// NOVO: FUNÇÃO PARA SALVAR DADOS DO PRIMEIRO ACESSO NO FIREBASE
+async function saveFirstAccessData() {
+  const name = document.getElementById('firstAccessName').value.trim();
+  const cpf = document.getElementById('firstAccessCPF').value.trim();
+  const whatsapp = document.getElementById('firstAccessWhatsApp').value.trim();
+  const email = document.getElementById('firstAccessEmail').value.trim();
+  
+  if (!name || !cpf || !whatsapp || !email) {
+    alert('Preencha todos os campos obrigatórios!');
+    return;
+  }
+  
+  const cpfNumbers = cpf.replace(/\D/g, '');
+  if (cpfNumbers.length !== 11) {
+    alert('CPF inválido!');
+    return;
+  }
+  
+  try {
+    // Salva dados no Firebase para o painel admin consumir
+    await database.ref(userDataPath + '/firstAccessData').set({
+      name: name,
+      cpf: cpf,
+      whatsapp: whatsapp,
+      email: email,
+      activationCode: currentActivationCode,
+      accessedAt: new Date().toISOString(),
+      userAgent: navigator.userAgent
+    });
+    
+    // Também salva no nó de activationCodes para fácil acesso do admin
+    await database.ref('activationCodes/' + currentActivationCode + '/userData').set({
+      name: name,
+      cpf: cpf,
+      whatsapp: whatsapp,
+      email: email,
+      activatedAt: new Date().toISOString()
+    });
+    
+    closeModal('firstAccessModal');
+    
+    // Cria o primeiro usuário após salvar os dados
+    const newUserId = 'user_' + Date.now();
+    const defaultUser = {
+      name: name,
+      profession: '',
+      registry: '',
+      pix: '',
+      role: 'terapeuta',
+      createdAt: new Date().toISOString()
+    };
+    await database.ref(userDataPath + '/users/' + newUserId).set(defaultUser);
+    currentUserId = newUserId;
+    localStorage.setItem('asm_user_id', newUserId);
+    loadDataFromFirebase();
+    
+  } catch (error) {
+    alert('Erro ao salvar dados: ' + error.message);
   }
 }
 
@@ -1340,7 +1482,7 @@ function logout() {
   localStorage.clear();
   pinVerified = false;
   pinVerifiedTime = null;
-  activeTherapistFilter = null; // Limpa filtro ao sair
+  activeTherapistFilter = null;
   location.reload();
 }
 
@@ -1363,10 +1505,9 @@ async function initializeApp() {
   const today = new Date().toISOString().slice(0, 7);
   document.getElementById('cashFlowMonth').value = today;
   document.getElementById('reportMonth').value = today;
-  document.getElementById('financialMonth').value = today; // NOVO: Inicializa filtro financeiro
+  document.getElementById('financialMonth').value = today;
 }
 
-// FUNÇÃO PARA VERIFICAR ANIVERSARIANTES
 function checkBirthdays() {
   const today = new Date();
   const currentMonth = today.getMonth() + 1;
@@ -1596,7 +1737,7 @@ function switchToUser(userId) {
     localStorage.setItem('asm_user_id', userId);
     pinVerified = false;
     pinVerifiedTime = null;
-    activeTherapistFilter = null; // Limpa filtro ao trocar usuário
+    activeTherapistFilter = null;
     location.reload();
   }
 }
@@ -1972,7 +2113,6 @@ function updateRecValue() {
   }
 }
 
-// Funções para controle de PIN
 function isPinVerificationValid() {
   if (!pinVerified || !pinVerifiedTime) return false;
   const now = new Date();
@@ -2017,7 +2157,6 @@ function showSection(section) {
   if (section === 'financeiro') { 
     selectedFinancial.clear(); 
     renderFinancialTable(); 
-    updateFinancialSummary(); // ATUALIZA RESUMO AO ABRIR FINANCEIRO
   }
   if (section === 'fluxo') renderCashFlow();
   if (section === 'relatorios') renderReports();
@@ -2095,7 +2234,6 @@ function verifyPin() {
       if (tempTarget === 'financeiro') { 
         selectedFinancial.clear(); 
         renderFinancialTable(); 
-        updateFinancialSummary(); // ATUALIZA RESUMO APÓS DESBLOQUEIO
       }
       if (tempTarget === 'fluxo') renderCashFlow();
       if (tempTarget === 'relatorios') renderReports();
@@ -2468,7 +2606,6 @@ function sendPendingSessionsWhatsApp() {
   window.open('https://wa.me/55' + patient.phone.replace(/\D/g, '') + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
-// GERAR RECIBO PDF
 function generateReceiptPDF() {
   if (selectedPaidSessions.size === 0) {
     alert('Selecione pelo menos uma sessão paga para gerar o recibo!');
@@ -2486,34 +2623,28 @@ function generateReceiptPDF() {
   
   const total = selectedAppts.reduce((s, a) => s + parseFloat(a.value || 0), 0);
   
-  // Cabeçalho
   doc.setFillColor(30, 58, 95);
   doc.rect(0, 0, 210, 50, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(24);
   doc.text('RECIBO', 105, 30, { align: 'center' });
   
-  // Dados da clínica
   doc.setFontSize(12);
   doc.text(sig.clinic.toUpperCase(), 105, 42, { align: 'center' });
   
-  // Linha separadora
   doc.setDrawColor(30, 58, 95);
   doc.setLineWidth(0.5);
   doc.line(10, 55, 200, 55);
   
-  // Dados do recibo
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(12);
   doc.text('RECIBO Nº ' + Date.now().toString().slice(-6), 10, 70);
   doc.text('Data de emissão: ' + new Date().toLocaleDateString('pt-BR'), 10, 78);
   
-  // Dados do paciente
   doc.setFontSize(11);
   doc.text('Recebi de: ' + patient.name, 10, 95);
   doc.text('CPF: ' + (patient.cpf || 'Não informado'), 10, 103);
   
-  // Descrição dos serviços
   doc.setFontSize(12);
   doc.setTextColor(30, 58, 95);
   doc.text('SERVIÇOS PRESTADOS:', 10, 120);
@@ -2527,19 +2658,16 @@ function generateReceiptPDF() {
     yPosition += 7;
   });
   
-  // Total
   doc.setFontSize(14);
   doc.setTextColor(30, 58, 95);
   doc.text('TOTAL: R$ ' + total.toFixed(2), 10, yPosition + 15);
   
-  // Assinatura
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(11);
   doc.text('_________________________________', 10, yPosition + 40);
   doc.text(sig.name || 'Profissional', 10, yPosition + 48);
   doc.text(sig.registry || '', 10, yPosition + 56);
   
-  // Rodapé
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -2636,7 +2764,6 @@ function generatePatientReport() {
     report += '\n';
   }
   
-  // Só inclui evolução se checkbox estiver marcado
   if (includeEvolution) {
     report += '📊 EVOLUÇÃO / ANOTAÇÕES\n\n';
     if (monthEvos.length === 0) { 
@@ -2729,7 +2856,6 @@ function generatePDFReport() {
     yPosition += 5;
   }
   
-  // Só inclui evolução se checkbox estiver marcado
   if (includeEvolution) {
     if (yPosition > 250) { doc.addPage(); yPosition = 20; }
     
@@ -2854,7 +2980,6 @@ function generatePatientAppointmentsPDF() {
 function updateDashboard() {
   if (currentUserRole === 'secretaria') return;
   
-  // NOVO: Aplica filtro de terapeuta ativo no dashboard também
   let monthAppts;
   if (activeTherapistFilter) {
     monthAppts = appointments.filter(a => 
@@ -2891,7 +3016,6 @@ function renderCharts() {
   const now = new Date();
   const currentMonth = now.toISOString().slice(0, 7);
   
-  // NOVO: Aplica filtro de terapeuta ativo nos gráficos
   const filterUserId = activeTherapistFilter || currentUserId;
   
   const monthAppts = appointments.filter(a => 
@@ -2995,20 +3119,17 @@ function getConsultationTypeName(typeId) {
   return type ? type.name : typeId;
 }
 
-// FUNÇÃO PARA OBTER COR DO TERAPEUTA
 function getTherapistColor(userId) {
   const therapists = clinicUsers.filter(u => u.role !== 'secretaria');
   const index = therapists.findIndex(u => u.id === userId);
-  if (index === -1) return 'blue'; // Cor padrão
+  if (index === -1) return 'blue';
   return therapistColors[index % therapistColors.length];
 }
 
-// NOVO: FUNÇÃO PARA RENDERIZAR LEGENDA DE CORES COM FILTRO
 function renderColorLegend() {
   const container = document.getElementById('colorLegend');
   if (!container) return;
   
-  // Limpa itens antigos mantendo o título
   const title = container.querySelector('span');
   container.innerHTML = '';
   if (title) container.appendChild(title);
@@ -3022,7 +3143,6 @@ function renderColorLegend() {
     item.dataset.userId = user.id;
     item.onclick = () => filterByTherapist(user.id);
     
-    // Verifica se este terapeuta está ativo no filtro
     if (activeTherapistFilter === user.id) {
       item.classList.add('active');
     }
@@ -3034,17 +3154,14 @@ function renderColorLegend() {
     container.appendChild(item);
   });
   
-  // Adiciona botão "Ver Todos" se houver filtro ativo
   const btnViewAll = document.getElementById('btnViewAllTherapists');
   if (btnViewAll) {
     btnViewAll.style.display = activeTherapistFilter ? 'inline-block' : 'none';
   }
 }
 
-// NOVO: FUNÇÃO PARA FILTRAR POR TERAPEUTA
 function filterByTherapist(userId) {
   if (activeTherapistFilter === userId) {
-    // Se já está selecionado, mantém selecionado (não toggle)
     return;
   }
   
@@ -3052,7 +3169,6 @@ function filterByTherapist(userId) {
   renderColorLegend();
   renderCalendar();
   
-  // Atualiza também o financeiro e fluxo de caixa se estiverem visíveis
   updateFinancialSummary();
   renderFinancialTable();
   renderCashFlow();
@@ -3060,13 +3176,11 @@ function filterByTherapist(userId) {
   updateDashboard();
 }
 
-// NOVO: FUNÇÃO PARA LIMPAR FILTRO DE TERAPEUTA
 function clearTherapistFilter() {
   activeTherapistFilter = null;
   renderColorLegend();
   renderCalendar();
   
-  // Atualiza também o financeiro e fluxo de caixa
   updateFinancialSummary();
   renderFinancialTable();
   renderCashFlow();
@@ -3086,7 +3200,6 @@ function getColorHex(colorName) {
   return colors[colorName] || '#3182ce';
 }
 
-// FUNÇÃO PARA ALTERNAR VISUALIZAÇÃO DA AGENDA
 function setCalendarView(view) {
   calendarViewMode = view;
   document.getElementById('btnMonthView').classList.toggle('active', view === 'month');
@@ -3094,19 +3207,15 @@ function setCalendarView(view) {
   renderCalendar();
 }
 
-// FUNÇÃO PARA VERIFICAR CONFLITO DE HORÁRIOS
 function checkScheduleConflict(date, time, patientId, excludeApptId = null) {
-  // Verifica se já existe agendamento para o mesmo paciente no mesmo horário (independente do profissional)
   const conflicts = appointments.filter(a => {
     if (a.cancelled) return false;
     if (excludeApptId && a.id === excludeApptId) return false;
     
-    // Verifica se é o mesmo dia e horário
     const sameDate = a.date === date;
     const sameTime = a.time === time;
     const samePatient = a.patientId === patientId;
     
-    // Conflito: mesmo paciente, mesmo dia, mesmo horário (qualquer profissional)
     return sameDate && sameTime && samePatient;
   });
   
@@ -3124,7 +3233,6 @@ function checkScheduleConflict(date, time, patientId, excludeApptId = null) {
   return { hasConflict: false };
 }
 
-// FUNÇÃO PARA MOSTRAR ALERTA DE CONFLITO NA TELA
 function showConflictAlert(message) {
   const alertDiv = document.getElementById('conflictAlert');
   const messageP = document.getElementById('conflictMessage');
@@ -3133,7 +3241,6 @@ function showConflictAlert(message) {
     messageP.textContent = message;
     alertDiv.classList.add('show');
     
-    // Esconde após 5 segundos
     setTimeout(() => {
       alertDiv.classList.remove('show');
     }, 5000);
@@ -3173,7 +3280,6 @@ function renderMonthCalendar() {
   
   const today = new Date();
   
-  // CORREÇÃO 2: Ordenar agendamentos por horário antes de renderizar
   for (let day = 1; day <= daysInMonth; day++) {
     const div = document.createElement('div');
     div.className = 'calendar-day';
@@ -3184,18 +3290,15 @@ function renderMonthCalendar() {
       div.style.color = 'white';
     }
     
-    // Pega agendamentos do dia e ordena por horário
     let dayAppointments = appointments.filter(a => {
       const parts = a.date.split('-');
       return parseInt(parts[0]) === year && (parseInt(parts[1]) - 1) === month && parseInt(parts[2]) === day && !a.cancelled;
     });
     
-    // NOVO: Aplica filtro de terapeuta se ativo
     if (activeTherapistFilter) {
       dayAppointments = dayAppointments.filter(a => a.userId === activeTherapistFilter);
     }
     
-    // ORDENAÇÃO POR HORÁRIO (do menor para o maior)
     dayAppointments.sort((a, b) => a.time.localeCompare(b.time));
     
     dayAppointments.forEach(appt => {
@@ -3236,7 +3339,6 @@ function renderWeekCalendar() {
   const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const today = new Date();
   
-  // Encontrar o domingo da semana atual
   const currentDayOfWeek = currentDate.getDay();
   const sunday = new Date(currentDate);
   sunday.setDate(currentDate.getDate() - currentDayOfWeek);
@@ -3256,7 +3358,6 @@ function renderWeekCalendar() {
       </div>
     `;
     
-    // Pega agendamentos do dia e ordena por horário
     let dayAppointments = appointments.filter(a => {
       const parts = a.date.split('-');
       return parseInt(parts[0]) === dayDate.getFullYear() && 
@@ -3265,12 +3366,10 @@ function renderWeekCalendar() {
              !a.cancelled;
     });
     
-    // NOVO: Aplica filtro de terapeuta se ativo
     if (activeTherapistFilter) {
       dayAppointments = dayAppointments.filter(a => a.userId === activeTherapistFilter);
     }
     
-    // ORDENAÇÃO POR HORÁRIO (do menor para o maior)
     dayAppointments.sort((a, b) => a.time.localeCompare(b.time));
     
     dayAppointments.forEach(appt => {
@@ -3316,7 +3415,6 @@ function openAppointmentModal(year, month, day) {
   document.getElementById('whatsappActionsContainer').style.display = 'none';
   document.querySelector('input[name="paymentMethod"][value="pix"]').checked = true;
   
-  // Esconde alerta de conflito ao abrir modal
   const alertDiv = document.getElementById('conflictAlert');
   if (alertDiv) alertDiv.classList.remove('show');
   
@@ -3370,16 +3468,13 @@ async function saveAppointment() {
   const date = document.getElementById('apptDate').value;
   const time = document.getElementById('apptTime').value;
   
-  // CORREÇÃO 3: Verifica conflito de horário antes de salvar
   const conflictCheck = checkScheduleConflict(date, time, patientId, currentApptId);
   
   if (conflictCheck.hasConflict) {
-    // Mostra alerta na tela
     showConflictAlert(conflictCheck.message.replace('⚠️ Conflito detectado!\n\n', '').replace('\n\nDeseja prosseguir mesmo assim?', ''));
     
-    // Pergunta se deseja prosseguir
     if (!confirm(conflictCheck.message)) {
-      return; // Cancela o salvamento
+      return;
     }
   }
   
@@ -3390,7 +3485,7 @@ async function saveAppointment() {
   const data = {
     id: currentApptId || Date.now().toString(),
     patientId: patientId,
-    userId: professionalId, // Profissional responsável pelo faturamento
+    userId: professionalId,
     date: date,
     time: time,
     type: typeId,
@@ -3542,7 +3637,6 @@ async function saveRecurrence() {
   const start = new Date(startDate);
   const newAppointments = [];
   
-  // CORREÇÃO 3: Verifica conflitos para todos os agendamentos recorrentes
   for (let i = 0; i < weeks; i++) {
     const date = new Date(start);
     date.setDate(date.getDate() + (i * frequency));
@@ -3551,14 +3645,14 @@ async function saveRecurrence() {
     const conflictCheck = checkScheduleConflict(dateStr, time, patientId);
     if (conflictCheck.hasConflict) {
       if (!confirm(`Conflito detectado no agendamento ${i + 1}:\n${conflictCheck.message}\n\nDeseja prosseguir mesmo assim?`)) {
-        return; // Cancela todo o processo
+        return;
       }
     }
     
     newAppointments.push({
       id: Date.now().toString() + '_' + i,
       patientId: patientId,
-      userId: professionalId, // Profissional responsável
+      userId: professionalId,
       date: dateStr,
       time: time,
       type: typeId,
@@ -3581,7 +3675,6 @@ async function saveRecurrence() {
 }
 
 function openCancelRecurrenceModal() {
-  // Limpa seleção anterior
   selectedRecurrentAppointments.clear();
   document.getElementById('cancelRecPatient').value = '';
   document.getElementById('recurrentAppointmentsList').style.display = 'none';
@@ -3603,7 +3696,6 @@ function loadCancelRecurrenceSelect() {
   });
 }
 
-// NOVO: FUNÇÃO PARA MOSTRAR AGENDAMENTOS RECORRENTES COM CHECKBOXES
 function showRecurrentAppointments() {
   const patientId = document.getElementById('cancelRecPatient').value;
   const listContainer = document.getElementById('recurrentAppointmentsList');
@@ -3620,7 +3712,6 @@ function showRecurrentAppointments() {
   
   const today = new Date().toISOString().split('T')[0];
   
-  // Busca agendamentos recorrentes futuros de forma mais precisa
   const futureAppts = appointments.filter(a => 
     a.patientId === patientId && 
     !a.cancelled && 
@@ -3658,12 +3749,10 @@ function showRecurrentAppointments() {
     window.currentRecurrentPatientId = patientId;
     window.currentRecurrentAppointments = futureAppts;
     
-    // Atualiza texto do botão
     updateCancelButtonText();
   }
 }
 
-// NOVO: FUNÇÃO PARA ALTERNAR SELEÇÃO DE AGENDAMENTO RECORRENTE
 function toggleRecurrentAppointment(apptId) {
   if (selectedRecurrentAppointments.has(apptId)) {
     selectedRecurrentAppointments.delete(apptId);
@@ -3673,20 +3762,17 @@ function toggleRecurrentAppointment(apptId) {
   updateCancelButtonText();
 }
 
-// NOVO: FUNÇÃO PARA SELECIONAR TODOS OS AGENDAMENTOS RECORRENTES
 function selectAllRecurrentAppointments() {
   const allAppts = window.currentRecurrentAppointments || [];
   allAppts.forEach(appt => selectedRecurrentAppointments.add(appt.id));
-  showRecurrentAppointments(); // Re-renderiza para atualizar checkboxes
+  showRecurrentAppointments();
 }
 
-// NOVO: FUNÇÃO PARA LIMPAR SELEÇÃO DE AGENDAMENTOS RECORRENTES
 function clearRecurrentSelection() {
   selectedRecurrentAppointments.clear();
-  showRecurrentAppointments(); // Re-renderiza para atualizar checkboxes
+  showRecurrentAppointments();
 }
 
-// NOVO: FUNÇÃO PARA ATUALIZAR TEXTO DO BOTÃO DE CANCELAMENTO
 function updateCancelButtonText() {
   const btn = document.getElementById('btnCancelRecurrence');
   const count = selectedRecurrentAppointments.size;
@@ -3697,9 +3783,7 @@ function updateCancelButtonText() {
   }
 }
 
-// FUNÇÃO AUXILIAR: Verifica se um agendamento faz parte de uma série de recorrência
 function isPartOfRecurrenceSeries(appt, patientId) {
-  // Verifica se existem outros agendamentos do mesmo paciente com mesmo horário e tipo em datas diferentes
   const sameTimeAppts = appointments.filter(a => 
     a.patientId === patientId && 
     !a.cancelled && 
@@ -3708,11 +3792,9 @@ function isPartOfRecurrenceSeries(appt, patientId) {
     a.id !== appt.id
   );
   
-  // Se existirem pelo menos 2 agendamentos com mesmo horário/tipo, considera como série
   return sameTimeAppts.length >= 2;
 }
 
-// NOVO: FUNÇÃO PARA CANCELAR AGENDAMENTOS SELECIONADOS (ou todos se nenhum selecionado)
 async function cancelSelectedRecurrences() {
   const patientId = window.currentRecurrentPatientId;
   const allAppts = window.currentRecurrentAppointments || [];
@@ -3722,13 +3804,10 @@ async function cancelSelectedRecurrences() {
     return;
   }
   
-  // Determina quais agendamentos cancelar
   let apptsToCancel;
   if (selectedRecurrentAppointments.size === 0) {
-    // Se nenhum selecionado, cancela todos
     apptsToCancel = allAppts;
   } else {
-    // Cancela apenas os selecionados
     apptsToCancel = allAppts.filter(a => selectedRecurrentAppointments.has(a.id));
   }
   
@@ -3742,10 +3821,8 @@ async function cancelSelectedRecurrences() {
   }
   
   try {
-    // Cancela apenas os agendamentos selecionados (ou todos se nenhum selecionado)
     const apptIdsToCancel = apptsToCancel.map(a => a.id);
     
-    // Marca como cancelados em vez de remover completamente (para manter histórico)
     appointments = appointments.map(a => {
       if (apptIdsToCancel.includes(a.id)) {
         return { ...a, cancelled: true };
@@ -3761,7 +3838,6 @@ async function cancelSelectedRecurrences() {
     updateFinancialSummary();
     updateDashboard();
     
-    // Limpa seleção
     selectedRecurrentAppointments.clear();
   } catch (error) {
     alert('Erro ao cancelar recorrência: ' + error.message);
@@ -3795,7 +3871,6 @@ function loadPatientSelect() {
   });
 }
 
-// CORREÇÃO 1: Filtro de mês na área Financeiro COM FILTRO DE TERAPEUTA
 function renderFinancialTable() {
   if (currentUserRole === 'secretaria') return;
   
@@ -3804,25 +3879,20 @@ function renderFinancialTable() {
   
   tbody.innerHTML = '';
   
-  // Pega o mês selecionado no filtro (ou mês atual se não houver)
   const selectedMonth = document.getElementById('financialMonth')?.value;
   
-  // NOVO: Determina qual terapeuta filtrar (ativo na legenda ou o logado)
   const filterUserId = activeTherapistFilter || currentUserId;
   
-  // Filtra por userId do profissional (ativo ou logado) E pelo mês selecionado
   let pendingAppts = appointments.filter(a => 
     !a.cancelled && 
     !a.paid && 
     a.userId === filterUserId
   );
   
-  // Aplica filtro de mês se existir
   if (selectedMonth) {
     pendingAppts = pendingAppts.filter(a => a.date.startsWith(selectedMonth));
   }
   
-  // Ordena por data (mais recentes primeiro)
   pendingAppts.sort((a, b) => new Date(b.date) - new Date(a.date));
   
   pendingAppts.forEach(appt => {
@@ -3950,7 +4020,6 @@ function sendSelectedPendingWhatsApp() {
 async function togglePayment(id) {
   const appt = appointments.find(a => a.id === id);
   
-  // Verifica se o agendamento pertence ao profissional logado
   if (appt.userId !== currentUserId) {
     alert('Você só pode alterar o pagamento dos seus próprios atendimentos.');
     return;
@@ -3965,24 +4034,12 @@ async function togglePayment(id) {
   updateDashboard();
 }
 
-// NOVO: FUNÇÃO PARA ATUALIZAR RESUMO FINANCEIRO COM FILTRO DE MÊS E TERAPEUTA
 function updateFinancialSummary() {
   if (currentUserRole === 'secretaria') return;
   
-  // Pega o mês selecionado no filtro
-  const selectedMonth = document.getElementById('financialMonth')?.value;
-  
-  // NOVO: Determina qual terapeuta filtrar (ativo na legenda ou o logado)
   const filterUserId = activeTherapistFilter || currentUserId;
   
-  // Filtra apenas os agendamentos onde o profissional filtrado é o responsável
-  let activeAppts = appointments.filter(a => !a.cancelled && a.userId === filterUserId);
-  
-  // Aplica filtro de mês se existir
-  if (selectedMonth) {
-    activeAppts = activeAppts.filter(a => a.date.startsWith(selectedMonth));
-  }
-  
+  const activeAppts = appointments.filter(a => !a.cancelled && a.userId === filterUserId);
   const received = activeAppts.filter(a => a.paid).reduce((s, a) => s + parseFloat(a.value || 0), 0);
   const pending = activeAppts.filter(a => !a.paid).reduce((s, a) => s + parseFloat(a.value || 0), 0);
   
@@ -3998,17 +4055,14 @@ function showCashFlowTab(tab) {
   document.getElementById('cf' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.add('active');
 }
 
-// NOVO: FUNÇÃO PARA RENDERIZAR FLUXO DE CAIXA COM FILTRO DE TERAPEUTA
 function renderCashFlow() {
   if (currentUserRole === 'secretaria') return;
   
   const month = document.getElementById('cashFlowMonth').value;
   if (!month) return;
   
-  // NOVO: Determina qual terapeuta filtrar (ativo na legenda ou o logado)
   const filterUserId = activeTherapistFilter || currentUserId;
   
-  // Filtra apenas os agendamentos do profissional filtrado
   const entries = appointments.filter(a => 
     !a.cancelled && 
     a.paid && 
@@ -4016,7 +4070,6 @@ function renderCashFlow() {
     a.userId === filterUserId
   );
   
-  // Despesas são individuais por usuário, então filtra pelo usuário logado ou filtrado
   const monthExpenses = expenses.filter(e => 
     e.date.startsWith(month)
   );
@@ -4091,17 +4144,14 @@ async function deleteExpense(id) {
   renderCashFlow();
 }
 
-// NOVO: FUNÇÃO PARA RENDERIZAR RELATÓRIOS COM FILTRO DE TERAPEUTA
 function renderReports() {
   if (currentUserRole === 'secretaria') return;
   
   const month = document.getElementById('reportMonth').value;
   if (!month) return;
   
-  // NOVO: Determina qual terapeuta filtrar (ativo na legenda ou o logado)
   const filterUserId = activeTherapistFilter || currentUserId;
   
-  // Filtra apenas os agendamentos do profissional filtrado
   const monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(month) && 
@@ -4135,7 +4185,6 @@ function renderReports() {
   });
 }
 
-// NOVO RELATÓRIO: Produtividade do Terapeuta (apenas seus pacientes)
 function generateProductivityReportPDF() {
   const month = document.getElementById('reportMonth').value;
   if (!month) {
@@ -4150,17 +4199,14 @@ function generateProductivityReportPDF() {
   const [year, mon] = month.split('-');
   const monthName = new Date(parseInt(year), parseInt(mon) - 1).toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
   
-  // NOVO: Aplica filtro de terapeuta ativo
   const filterUserId = activeTherapistFilter || currentUserId;
   
-  // Pega apenas os agendamentos do profissional filtrado
   const monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(month) && 
     a.userId === filterUserId
   );
   
-  // Agrupa por paciente (cada paciente aparece uma vez)
   const byPatient = {};
   monthAppts.forEach(appt => {
     if (!byPatient[appt.patientId]) { 
@@ -4174,7 +4220,6 @@ function generateProductivityReportPDF() {
     byPatient[appt.patientId].total += parseFloat(appt.value || 0);
   });
   
-  // Ordena alfabeticamente
   const sortedPatients = Object.values(byPatient).filter(item => item.patient).sort((a, b) => 
     a.patient.name.localeCompare(b.patient.name)
   );
@@ -4184,7 +4229,6 @@ function generateProductivityReportPDF() {
     return;
   }
   
-  // Cabeçalho
   doc.setFillColor(30, 58, 95);
   doc.rect(0, 0, 210, 50, 'F');
   doc.setTextColor(255, 255, 255);
@@ -4195,21 +4239,18 @@ function generateProductivityReportPDF() {
   doc.setFontSize(11);
   doc.text(monthName.toUpperCase(), 105, 45, { align: 'center' });
   
-  // Dados do terapeuta
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
   doc.text('Profissional: ' + (sig.name || '---'), 10, 60);
   doc.text('Registro: ' + (sig.registry || '---'), 10, 68);
   doc.line(10, 75, 200, 75);
   
-  // Tabela de produtividade
   const tableData = sortedPatients.map(item => [
     item.patient.name,
     item.sessions.toString(),
     'R$ ' + item.total.toFixed(2)
   ]);
   
-  // Adiciona linha de total
   const totalGeral = sortedPatients.reduce((sum, item) => sum + item.total, 0);
   const totalAtendimentos = sortedPatients.reduce((sum, item) => sum + item.sessions, 0);
   
@@ -4224,7 +4265,6 @@ function generateProductivityReportPDF() {
     footStyles: { fillColor: [56, 161, 105], textColor: 255, fontStyle: 'bold' }
   });
   
-  // Rodapé com assinatura
   const finalY = doc.lastAutoTable.finalY + 30;
   
   doc.setFontSize(11);
@@ -4234,7 +4274,6 @@ function generateProductivityReportPDF() {
   doc.text(sig.name || 'Profissional', 10, finalY + 6);
   doc.text(sig.registry || '', 10, finalY + 12);
   
-  // Rodapé da página
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -4248,7 +4287,6 @@ function generateProductivityReportPDF() {
   doc.save(fileName);
 }
 
-// NOVO RELATÓRIO: Atendimentos por Paciente (Todos os pacientes) - MANTIDO COMO ESTAVA
 function exportPatientReportExcel() {
   const month = document.getElementById('reportMonth').value;
   if (!month) {
@@ -4256,13 +4294,11 @@ function exportPatientReportExcel() {
     return;
   }
   
-  // Pega todos os agendamentos do mês (de todos os profissionais)
   const monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(month)
   );
   
-  // Agrupa por paciente
   const byPatient = {};
   monthAppts.forEach(appt => {
     if (!byPatient[appt.patientId]) { 
@@ -4276,7 +4312,6 @@ function exportPatientReportExcel() {
     byPatient[appt.patientId].total += parseFloat(appt.value || 0);
   });
   
-  // Ordena alfabeticamente
   const sortedPatients = Object.values(byPatient).filter(item => item.patient).sort((a, b) => 
     a.patient.name.localeCompare(b.patient.name)
   );
@@ -4292,7 +4327,6 @@ function exportPatientReportExcel() {
     'Valor Total': 'R$ ' + item.total.toFixed(2)
   }));
   
-  // Adiciona linha de total
   const totalGeral = sortedPatients.reduce((sum, item) => sum + item.total, 0);
   const totalAtendimentos = sortedPatients.reduce((sum, item) => sum + item.sessions, 0);
   
@@ -4327,13 +4361,11 @@ function generatePatientAppointmentsReportPDF() {
   const [year, mon] = month.split('-');
   const monthName = new Date(parseInt(year), parseInt(mon) - 1).toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
   
-  // Pega todos os agendamentos do mês (de todos os profissionais)
   const monthAppts = appointments.filter(a => 
     !a.cancelled && 
     a.date.startsWith(month)
   );
   
-  // Agrupa por paciente
   const byPatient = {};
   monthAppts.forEach(appt => {
     if (!byPatient[appt.patientId]) { 
@@ -4347,7 +4379,6 @@ function generatePatientAppointmentsReportPDF() {
     byPatient[appt.patientId].total += parseFloat(appt.value || 0);
   });
   
-  // Ordena alfabeticamente
   const sortedPatients = Object.values(byPatient).filter(item => item.patient).sort((a, b) => 
     a.patient.name.localeCompare(b.patient.name)
   );
@@ -4357,7 +4388,6 @@ function generatePatientAppointmentsReportPDF() {
     return;
   }
   
-  // Cabeçalho
   doc.setFillColor(30, 58, 95);
   doc.rect(0, 0, 210, 50, 'F');
   doc.setTextColor(255, 255, 255);
@@ -4368,7 +4398,6 @@ function generatePatientAppointmentsReportPDF() {
   doc.setFontSize(11);
   doc.text(monthName.toUpperCase(), 105, 45, { align: 'center' });
   
-  // Dados do relatório
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
   
@@ -4378,7 +4407,6 @@ function generatePatientAppointmentsReportPDF() {
     'R$ ' + item.total.toFixed(2)
   ]);
   
-  // Adiciona linha de total
   const totalGeral = sortedPatients.reduce((sum, item) => sum + item.total, 0);
   const totalAtendimentos = sortedPatients.reduce((sum, item) => sum + item.sessions, 0);
   
@@ -4393,7 +4421,6 @@ function generatePatientAppointmentsReportPDF() {
     footStyles: { fillColor: [214, 158, 46], textColor: 255, fontStyle: 'bold' }
   });
   
-  // Rodapé com assinatura
   const finalY = doc.lastAutoTable.finalY + 30;
   
   doc.setFontSize(11);
@@ -4403,7 +4430,6 @@ function generatePatientAppointmentsReportPDF() {
   doc.text(sig.name || 'Profissional', 10, finalY + 6);
   doc.text(sig.registry || '', 10, finalY + 12);
   
-  // Rodapé da página
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -4425,7 +4451,6 @@ function generateDashboardPDF() {
   const now = new Date();
   const currentMonth = now.toISOString().slice(0, 7);
   
-  // NOVO: Aplica filtro de terapeuta ativo
   const filterUserId = activeTherapistFilter || currentUserId;
   
   const monthAppts = appointments.filter(a => 
@@ -4491,7 +4516,6 @@ function generateMonthlyReportPDF() {
   const [year, mon] = month.split('-').map(Number);
   const monthName = new Date(year, mon - 1).toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
   
-  // NOVO: Aplica filtro de terapeuta ativo
   const filterUserId = activeTherapistFilter || currentUserId;
   
   const monthAppts = appointments.filter(a => 
@@ -4564,7 +4588,6 @@ function generateMonthlyReportPDF() {
   doc.save('Relatorio_Mensal_' + month + '.pdf');
 }
 
-// NOVO: FUNÇÃO PARA EXPORTAR AGENDA COM FILTRO DE TERAPEUTA
 function exportAgendaExcel() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -4576,7 +4599,6 @@ function exportAgendaExcel() {
     a.date.startsWith(monthKey)
   ).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
   
-  // NOVO: Aplica filtro de terapeuta se ativo
   if (activeTherapistFilter) {
     monthAppts = monthAppts.filter(a => a.userId === activeTherapistFilter);
   }
@@ -4612,7 +4634,6 @@ function exportAgendaExcel() {
   XLSX.writeFile(wb, fileName);
 }
 
-// NOVO: FUNÇÃO PARA EXPORTAR AGENDA PDF COM FILTRO DE TERAPEUTA
 function exportAgendaPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -4629,7 +4650,6 @@ function exportAgendaPDF() {
     a.date.startsWith(monthKey)
   ).sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
   
-  // NOVO: Aplica filtro de terapeuta se ativo
   if (activeTherapistFilter) {
     monthAppts = monthAppts.filter(a => a.userId === activeTherapistFilter);
   }
@@ -4658,7 +4678,6 @@ function exportAgendaPDF() {
   doc.setTextColor(0, 0, 0);
   doc.text('Período: ' + monthName, 10, 70);
   
-  // NOVO: Indica se está filtrado
   if (activeTherapistFilter) {
     const filteredUser = clinicUsers.find(u => u.id === activeTherapistFilter);
     doc.text('Filtrado por: ' + (filteredUser ? filteredUser.name : 'Terapeuta'), 10, 78);
