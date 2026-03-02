@@ -618,6 +618,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
       <!-- Legenda de cores com filtro e botão de reverter -->
       <div class="color-legend" id="colorLegend">
         <span style="font-weight:bold;color:#2d3748">Profissionais:</span>
+        <!-- BOTÃO VER TODOS - aparece quando há filtro ativo -->
         <button class="btn-view-all" id="btnViewAllTherapists" onclick="clearTherapistFilter()" style="display:none;margin-left:auto">👁️ Ver Todos</button>
       </div>
       
@@ -724,7 +725,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         <input type="month" id="reportMonth" onchange="renderReports()">
       </div>
       
-      <!-- NOVO: Filtro de paciente -->
+      <!-- NOVO: Filtro de paciente no relatório -->
       <div class="patient-filter-section">
         <label>Filtrar por Paciente (opcional)</label>
         <select id="reportPatientFilter" onchange="renderReports()">
@@ -3171,10 +3172,15 @@ function renderColorLegend() {
     container.appendChild(item);
   });
   
-  const btnViewAll = document.getElementById('btnViewAllTherapists');
-  if (btnViewAll) {
-    btnViewAll.style.display = activeTherapistFilter ? 'inline-block' : 'none';
-  }
+  // BOTÃO VER TODOS - mostra apenas quando há filtro ativo
+  const btnViewAll = document.createElement('button');
+  btnViewAll.className = 'btn-view-all';
+  btnViewAll.id = 'btnViewAllTherapists';
+  btnViewAll.textContent = '👁️ Ver Todos';
+  btnViewAll.onclick = clearTherapistFilter;
+  btnViewAll.style.display = activeTherapistFilter ? 'inline-block' : 'none';
+  btnViewAll.style.marginLeft = 'auto';
+  container.appendChild(btnViewAll);
 }
 
 function filterByTherapist(userId) {
