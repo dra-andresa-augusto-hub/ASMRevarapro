@@ -3104,7 +3104,10 @@ const currentMonth = monthFilter && monthFilter.value ? monthFilter.value : now.
   
   const ctxType = document.getElementById('chartByType');
   if (ctxType) {
-    new Chart(ctxType, {
+    if (window.chartByType) {
+    window.chartByType.destroy();
+}
+    window.chartByType = new Chart(ctxType, {
       type: 'pie',
       data: {
         labels: Object.keys(byType),
