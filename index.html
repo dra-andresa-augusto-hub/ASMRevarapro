@@ -3132,24 +3132,26 @@ const currentMonth = monthFilter && monthFilter.value ? monthFilter.value : now.
   });
   
   const ctxPayment = document.getElementById('chartByPayment');
-  if (ctxPayment) {
-    new Chart(ctxPayment, {
-      type: 'doughnut',
-      data: {
-        labels: Object.keys(byPayment),
-        datasets: [{
-          data: Object.values(byPayment),
-          backgroundColor: ['#1e3a5f', '#38a169', '#d69e2e']
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } }
-      }
+if (ctxPayment) {
+    if (window.chartByPayment) {
+        window.chartByPayment.destroy();
+    }
+    window.chartByPayment = new Chart(ctxPayment, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(byPayment),
+            datasets: [{
+                data: Object.values(byPayment),
+                backgroundColor: ['#1e3a5f', '#38a169', '#d69e2e']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
     });
-  }
-  
+}
   const monthlyData = {};
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
