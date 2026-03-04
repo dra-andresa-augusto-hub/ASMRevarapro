@@ -3063,6 +3063,7 @@ function updateDashboard() {
       a.userId === currentUserId
     );
   }
+   renderCharts();
   
   const totalRevenue = monthAppts.reduce((s, a) => s + parseFloat(a.value || 0), 0);
   const pending = appointments.filter(a => 
@@ -3076,7 +3077,6 @@ function updateDashboard() {
   document.getElementById('dashAvgTicket').textContent = 'R$ ' + (monthAppts.length > 0 ? (totalRevenue / monthAppts.length).toFixed(2) : '0.00');
   document.getElementById('dashPending').textContent = 'R$ ' + pending.toFixed(2);
   
-  renderCharts();
 }
 
 function renderCharts() {
