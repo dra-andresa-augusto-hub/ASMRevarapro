@@ -2749,9 +2749,23 @@ function renderEvolutions() {
   patientEvos.forEach(evo => {
     const div = document.createElement('div');
     div.className = 'evolution-item';
+        div.id = 'evo_' + evo.id;
     div.innerHTML = `
-      <div class="date">${formatDate(evo.date)} às ${evo.time}</div>
-      <div class="text">${evo.text}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <div class="date">${formatDate(evo.date)} às ${evo.time}</div>
+        <div style="display:flex;gap:5px">
+          <button onclick="startEditEvolution('${evo.id}')" style="background:#1e3a5f;color:white;border:none;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">✏️ Editar</button>
+          <button onclick="deleteEvolution('${evo.id}')" style="background:#e53e3e;color:white;border:none;padding:4px 8px;border-radius:4px;font-size:11px;cursor:pointer">🗑️ Excluir</button>
+        </div>
+      </div>
+      <div class="text" id="evo_text_${evo.id}">${evo.text}</div>
+      <div id="evo_edit_${evo.id}" style="display:none;margin-top:10px">
+        <textarea id="evo_input_${evo.id}" rows="3" style="width:100%;padding:8px;border:1px solid #cbd5e0;border-radius:5px">${evo.text}</textarea>
+        <div style="display:flex;gap:5px;margin-top:5px">
+          <button onclick="saveEditEvolution('${evo.id}')" style="background:#38a169;color:white;border:none;padding:5px 10px;border-radius:4px;font-size:12px;cursor:pointer">💾 Salvar</button>
+          <button onclick="cancelEditEvolution('${evo.id}')" style="background:#718096;color:white;border:none;padding:5px 10px;border-radius:4px;font-size:12px;cursor:pointer">✗ Cancelar</button>
+        </div>
+      </div>
     `;
     list.appendChild(div);
   });
@@ -5057,6 +5071,36 @@ document.addEventListener('DOMContentLoaded', function() {
   const selectAllCheckbox = document.getElementById('selectAllReport');
   const checkboxes = document.querySelectorAll('.report-patient-checkbox');
   checkboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+}
+function startEditEvolution(evoId) {
+  document.getElementById('evo_text_' + evoId).style.display = 'none';
+  document.getElementById('evo_edit_' + evoId).style.display = 'block';
+}
+
+function cancelEditEvolution(evoId) {
+  document.getElementById('evo_text_' + evoId).style.display = 'block';
+  document.getElementById('evo_edit_' + evoId).style.display = 'none';
+}
+
+async function saveEditEvolution(evoId) {
+  const newText = document.getElementById('evo_input_' + evoId).value.trim();
+  if (!newText) {
+    alert('A evolução não pode ficar vazia!');
+    return;
+  }
+  const evoIndex = evolutions.findIndex(e => e.id === evoId);
+  if (evoIndex !== -1) {
+    evolutions[evoIndex].text = newText;
+    await saveDataToFirebase();
+    renderEvolutions();
+  }
+}
+
+async function deleteEvolution(evoId) {
+  if (!confirm('Tem certeza que deseja excluir esta evolução?')) return;
+  evolutions = evolutions.filter(e => e.id !== evoId);
+  await saveDataToFirebase();
+  renderEvolutions();
 }
 
 </script>
