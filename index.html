@@ -2764,19 +2764,30 @@ function renderEvolutions() {
 
 async function addEvolution() {
   const text = document.getElementById('newEvolution').value;
-  if (!text.trim()) return;
+  const dateInput = document.getElementById('evolutionDate').value;
+  
+  if (!text.trim()) {
+    alert('Digite a evolução!');
+    return;
+  }
+  
+  if (!dateInput) {
+    alert('Selecione a data da evolução!');
+    return;
+  }
   
   const now = new Date();
   evolutions.push({
     id: Date.now().toString(),
     patientId: currentPatientId,
-    date: now.toISOString().split('T')[0],
+    date: dateInput,
     time: now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}),
     text: text
   });
   
   await saveDataToFirebase();
   document.getElementById('newEvolution').value = '';
+  document.getElementById('evolutionDate').value = '';
   renderEvolutions();
 }
 
