@@ -2766,19 +2766,14 @@ function renderEvolutions() {
   patientEvos.forEach(evo => {
     const div = document.createElement('div');
     div.className = 'evolution-item';
-    div.style.position = 'relative';
-    div.style.paddingRight = '50px';
-    
     div.innerHTML = `
-      <div style="position:absolute;right:10px;top:10px">
-        <button onclick="deleteEvolution('${evo.id}')" style="background:#e53e3e;color:white;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px" title="Excluir">🗑️</button>
-      </div>
       <div class="date">${formatDate(evo.date)} às ${evo.time}</div>
       <div class="text">${evo.text}</div>
     `;
     list.appendChild(div);
   });
 }
+
 
 async function addEvolution() {
   const text = document.getElementById('newEvolution').value;
