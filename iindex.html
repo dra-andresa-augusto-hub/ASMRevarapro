@@ -4489,7 +4489,6 @@ function exportPatientReportExcel() {
   fileName += '.xlsx';
   XLSX.writeFile(wb, fileName);
 }
-
 function generatePatientAppointmentsReportPDF() {
   const month = document.getElementById('reportMonth').value;
   if (!month) {
@@ -4510,6 +4509,7 @@ function generatePatientAppointmentsReportPDF() {
     a.date.startsWith(month) && 
     a.userId === filterUserId
   );
+  
   const byPatient = {};
   monthAppts.forEach(appt => {
     if (!byPatient[appt.patientId]) { 
@@ -4532,6 +4532,7 @@ function generatePatientAppointmentsReportPDF() {
     return;
   }
   
+  // Cabeçalho padrão azul marinho
   doc.setFillColor(30, 58, 95);
   doc.rect(0, 0, 210, 50, 'F');
   doc.setTextColor(255, 255, 255);
@@ -4542,9 +4543,14 @@ function generatePatientAppointmentsReportPDF() {
   doc.setFontSize(11);
   doc.text(monthName.toUpperCase(), 105, 45, { align: 'center' });
   
+  // Dados do profissional
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
+  doc.text('Profissional: ' + (sig.name || '---'), 10, 60);
+  doc.text('Registro: ' + (sig.registry || '---'), 10, 68);
+  doc.line(10, 75, 200, 75);
   
+  // Tabela formatada
   const tableData = sortedPatients.map(item => [
     item.patient.name,
     item.sessions.toString(),
@@ -4555,18 +4561,36 @@ function generatePatientAppointmentsReportPDF() {
   const totalAtendimentos = sortedPatients.reduce((sum, item) => sum + item.sessions, 0);
   
   doc.autoTable({
-    startY: 60,
+    startY: 85,
     head: [['Nome do Paciente', 'Qtd. Atendimentos', 'Valor Total']],
     body: tableData,
     theme: 'striped',
-    headStyles: { fillColor: [30, 58, 95], textColor: 255, fontSize: 11 },
-    styles: { fontSize: 10 },
+    headStyles: { 
+      fillColor: [30, 58, 95], 
+      textColor: 255, 
+      fontSize: 11,
+      halign: 'left'
+    },
+    styles: { 
+      fontSize: 10,
+      halign: 'left'
+    },
+    columnStyles: {
+      0: { cellWidth: 100 },
+      1: { cellWidth: 40, halign: 'center' },
+      2: { cellWidth: 50, halign: 'right' }
+    },
     foot: [['TOTAL GERAL', totalAtendimentos.toString(), 'R$ ' + totalGeral.toFixed(2)]],
-    footStyles: { fillColor: [214, 158, 46], textColor: 255, fontStyle: 'bold' }
+    footStyles: { 
+      fillColor: [56, 161, 105], 
+      textColor: 255, 
+      fontStyle: 'bold',
+      halign: 'left'
+    }
   });
   
+  // Assinatura
   const finalY = doc.lastAutoTable.finalY + 30;
-  
   doc.setFontSize(11);
   doc.setTextColor(30, 58, 95);
   doc.text('_________________________________', 10, finalY);
@@ -4574,6 +4598,7 @@ function generatePatientAppointmentsReportPDF() {
   doc.text(sig.name || 'Profissional', 10, finalY + 6);
   doc.text(sig.registry || '', 10, finalY + 12);
   
+  // Rodapé
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -4582,9 +4607,11 @@ function generatePatientAppointmentsReportPDF() {
     doc.text('Documento gerado em ' + new Date().toLocaleDateString('pt-BR') + ' - ASM Gestão Clínica – REVARA Pro', 105, 285, { align: 'center' });
     doc.text('© 2024 Dra. Andresa Augusto - Proibida reprodução sem autorização', 105, 290, { align: 'center' });
   }
+  
   const fileName = 'Atendimentos_Por_Paciente_' + month + '.pdf';
   doc.save(fileName);
 }
+
 
 function generateDashboardPDF() {
   const { jsPDF } = window.jspdf;
