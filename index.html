@@ -3056,14 +3056,15 @@ function updateDashboard() {
      a.date.startsWith((document.getElementById('dashboardMonth')?.value || new Date().toISOString().slice(0, 7))) && 
       a.userId === activeTherapistFilter
     );
+     renderCharts();
   } else {
     monthAppts = appointments.filter(a => 
       !a.cancelled && 
       a.date.startsWith((document.getElementById('dashboardMonth')?.value || new Date().toISOString().slice(0, 7))) && 
       a.userId === currentUserId
     );
+     renderCharts();
   }
-   renderCharts();
   
   const totalRevenue = monthAppts.reduce((s, a) => s + parseFloat(a.value || 0), 0);
   const pending = appointments.filter(a => 
