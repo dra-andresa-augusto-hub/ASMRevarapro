@@ -4490,7 +4490,7 @@ function exportPatientReportExcel() {
   
   const [year, mon] = month.split('-');
   const monthName = new Date(parseInt(year), parseInt(mon) - 1).toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
-  fileName += '.xlsx';
+ const fileName = 'Atendimentos_' + month + '.xlsx';
   XLSX.writeFile(wb, fileName);
 }
 function generatePatientAppointmentsReportPDF() {
