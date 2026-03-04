@@ -3167,29 +3167,30 @@ if (ctxPayment) {
   });
   
   const ctxMonthly = document.getElementById('chartMonthly');
-  if (ctxMonthly) {
-    new Chart(ctxMonthly, {
-      type: 'bar',
-      data: {
-        labels: Object.keys(monthlyData).map(m => {
-          const [y, mon] = m.split('-');
-          return mon + '/' + y;
-        }),
-        datasets: [{
-          label: 'Faturamento (R$)',
-          data: Object.values(monthlyData),
-          backgroundColor: '#1e3a5f'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: { y: { beginAtZero: true } }
-      }
+if (ctxMonthly) {
+    if (window.chartMonthly) {
+        window.chartMonthly.destroy();
+    }
+    window.chartMonthly = new Chart(ctxMonthly, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(monthlyData).map(m => {
+                const [y, mon] = m.split('-');
+                return mon + '/' + y;
+            }),
+            datasets: [{
+                label: 'Faturamento (R$)',
+                data: Object.values(monthlyData),
+                backgroundColor: '#1e3a5f'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } }
+        }
     });
-  }
 }
-
 function getConsultationTypeName(typeId) {
   const type = consultationTypes.find(t => t.id === typeId);
   return type ? type.name : typeId;
