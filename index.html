@@ -409,7 +409,15 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
     <!-- DASHBOARD -->
     <div id="dashboard" class="section active">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-        <h2>📊 Dashboard</h2>
+        
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+  <h2>📊 Dashboard</h2>
+  <div class="form-group" style="max-width:200px;margin:0">
+    <input type="month" id="dashboardMonth" onchange="updateDashboard(); renderCharts();" />
+  </div>
+  <button class="btn btn-pdf" onclick="generateDashboardPDF()">📕 Gerar PDF</button>
+</div>
+
         <button class="btn btn-pdf" onclick="generateDashboardPDF()">📕 Gerar PDF</button>
       </div>
       <div class="summary-cards">
@@ -3066,8 +3074,13 @@ function updateDashboard() {
 function renderCharts() {
   if (currentUserRole === 'secretaria') return;
   
-  const now = new Date();
-  const currentMonth = now.toISOString().slice(0, 7);
+  
+const now = new Date();
+const monthFilter = document.getElementById('dashboardMonth');
+const currentMonth = (monthFilter && monthFilter.value) 
+  ? monthFilter.value 
+  : now.toISOString().slice(0,7);
+
   
   const filterUserId = activeTherapistFilter || currentUserId;
   
@@ -4620,8 +4633,13 @@ function generateDashboardPDF() {
   const doc = new jsPDF();
   const sig = getProfessionalSignature();
   
-  const now = new Date();
-  const currentMonth = now.toISOString().slice(0, 7);
+  
+const now = new Date();
+const monthFilter = document.getElementById('dashboardMonth');
+const currentMonth = (monthFilter && monthFilter.value) 
+  ? monthFilter.value 
+  : now.toISOString().slice(0,7);
+
   
   const filterUserId = activeTherapistFilter || currentUserId;
   
