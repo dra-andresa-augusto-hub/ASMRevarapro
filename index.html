@@ -3104,7 +3104,7 @@ const currentMonth = monthFilter && monthFilter.value ? monthFilter.value : now.
   
   const ctxType = document.getElementById('chartByType');
   if (ctxType) {
-    if (window.chartByType) {
+  if (window.chartByType && typeof window.chartByType.destroy === 'function') {
     window.chartByType.destroy();
 }
     window.chartByType = new Chart(ctxType, {
@@ -3133,7 +3133,7 @@ const currentMonth = monthFilter && monthFilter.value ? monthFilter.value : now.
   
   const ctxPayment = document.getElementById('chartByPayment');
 if (ctxPayment) {
-    if (window.chartByPayment) {
+    if (window.chartByPayment && typeof window.chartByPayment.destroy === 'function') {
         window.chartByPayment.destroy();
     }
     window.chartByPayment = new Chart(ctxPayment, {
@@ -3168,7 +3168,7 @@ if (ctxPayment) {
   
   const ctxMonthly = document.getElementById('chartMonthly');
 if (ctxMonthly) {
-    if (window.chartMonthly) {
+if (window.chartMonthly && typeof window.chartMonthly.destroy === 'function') {
         window.chartMonthly.destroy();
     }
     window.chartMonthly = new Chart(ctxMonthly, {
