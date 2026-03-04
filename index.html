@@ -739,13 +739,15 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
         <button class="btn btn-success" onclick="generateProductivityReportPDF()" style="background:#38a169">📈 PDF Produtividade</button>
       </div>
 
-<div class="patient-filter-section" style="margin-top:10px;margin-bottom:15px">
-  <label style="font-weight:600">Selecionar pacientes (somente para o PDF de Produtividade)</label>
-  <div id="reportPatientList" style="max-height:220px;overflow-y:auto;background:#fff;padding:10px;border-radius:8px;border:1px solid #e2e8f0;margin-top:8px"></div>
-</div>
-
       <table>
-        <thead><tr><th>Paciente</th><th>Sessões</th><th>Total</th></tr></thead>
+  <thead>
+    <tr>
+      <th style="width:40px"><input type="checkbox" id="selectAllReport" onchange="toggleAllReportPatients()" title="Selecionar todos"></th>
+      <th>Paciente</th>
+      <th>Sessões</th>
+      <th>Total</th>
+    </tr>
+  </thead>
         <tbody id="reportTable"></tbody>
       </table>
     </div>
