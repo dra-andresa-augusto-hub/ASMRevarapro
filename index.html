@@ -411,6 +411,8 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <h2>📊 Dashboard</h2>
         <button class="btn btn-pdf" onclick="generateDashboardPDF()">📕 Gerar PDF</button>
+        <div class="form-group" style="max-width:200px;margin:0"><label>Mês/Ano</label><input type="month" id="dashboardMonth" onchange="updateDashboard()" value=""></div>
+        
       </div>
       <div class="summary-cards">
         <div class="summary-card green"><h3 id="dashTotalRevenue">R$ 0,00</h3><p>Faturamento Total</p></div>
