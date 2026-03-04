@@ -3053,13 +3053,13 @@ function updateDashboard() {
   if (activeTherapistFilter) {
     monthAppts = appointments.filter(a => 
       !a.cancelled && 
-      a.date.startsWith(new Date().toISOString().slice(0, 7)) && 
+     a.date.startsWith((document.getElementById('dashboardMonth')?.value || new Date().toISOString().slice(0, 7))) && 
       a.userId === activeTherapistFilter
     );
   } else {
     monthAppts = appointments.filter(a => 
       !a.cancelled && 
-      a.date.startsWith(new Date().toISOString().slice(0, 7)) && 
+      a.date.startsWith((document.getElementById('dashboardMonth')?.value || new Date().toISOString().slice(0, 7))) && 
       a.userId === currentUserId
     );
   }
