@@ -3083,7 +3083,8 @@ function renderCharts() {
   if (currentUserRole === 'secretaria') return;
   
   const now = new Date();
-  const currentMonth = now.toISOString().slice(0, 7);
+  const monthFilter = document.getElementById('dashboardMonth');
+const currentMonth = monthFilter && monthFilter.value ? monthFilter.value : now.toISOString().slice(0, 7);
   
   const filterUserId = activeTherapistFilter || currentUserId;
   
