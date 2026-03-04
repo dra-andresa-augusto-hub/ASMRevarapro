@@ -3107,6 +3107,7 @@ const currentMonth = monthFilter && monthFilter.value ? monthFilter.value : now.
   if (window.chartByType && typeof window.chartByType.destroy === 'function') {
     window.chartByType.destroy();
 }
+    
     window.chartByType = new Chart(ctxType, {
       type: 'pie',
       data: {
