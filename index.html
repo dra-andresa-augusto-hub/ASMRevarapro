@@ -2749,7 +2749,7 @@ function renderEvolutions() {
   patientEvos.forEach(evo => {
     const div = document.createElement('div');
     div.className = 'evolution-item';
-        div.id = 'evo_' + evo.id;
+          div.id = 'evo_' + evo.id;
     div.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
         <div class="date">${formatDate(evo.date)} às ${evo.time}</div>
