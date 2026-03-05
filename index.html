@@ -4019,10 +4019,8 @@ function loadPatientSelect() {
 
 // NOVO: FUNÇÃO PARA CARREGAR FILTRO DE PACIENTE NO RELATÓRIO
 function getSelectedReportPatientIds() {
-  const container = document.getElementById('reportPatientList');
-  if (!container) return [];
 
-  const checkboxes = container.querySelectorAll('input[type="checkbox"][data-patient-id]');
+  const checkboxes = document.querySelectorAll('.report-patient-checkbox');
   const selected = [];
 
   checkboxes.forEach(cb => {
@@ -4032,8 +4030,8 @@ function getSelectedReportPatientIds() {
   });
 
   return selected;
-}
 
+}
 
 function renderReportPatientCheckboxList() {
   const container = document.getElementById('reportPatientList');
