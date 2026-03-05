@@ -667,7 +667,7 @@ th{background:#f7fafc;font-weight:bold;color:#2d3748}
       <h2>💰 Meu Financeiro</h2>
       <div class="form-group" style="max-width:300px;margin-bottom:20px">
         <label>Mês/Ano</label>
-        <input type="month" id="financialMonth" onchange="renderFinancialTable()">
+<input type="month" id="financialMonth" onchange="renderFinancialTable(); updateFinancialSummary();">
       </div>
       <div class="summary-cards">
         <div class="summary-card green"><h3 id="totalReceived">R$ 0,00</h3><p>Recebido</p></div>
