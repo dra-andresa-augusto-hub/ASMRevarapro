@@ -4222,8 +4222,15 @@ function updateFinancialSummary() {
   if (currentUserRole === 'secretaria') return;
   
   const filterUserId = activeTherapistFilter || currentUserId;
+  const selectedMonth = document.getElementById('financialMonth')?.value;
   
-  const activeAppts = appointments.filter(a => !a.cancelled && a.userId === filterUserId);
+  let activeAppts = appointments.filter(a => !a.cancelled && a.userId === filterUserId);
+  
+  // FILTRA PELO MÊS SELECIONADO
+  if (selectedMonth) {
+    activeAppts = activeAppts.filter(a => a.date.startsWith(selectedMonth));
+  }
+  
   const received = activeAppts.filter(a => a.paid).reduce((s, a) => s + parseFloat(a.value || 0), 0);
   const pending = activeAppts.filter(a => !a.paid).reduce((s, a) => s + parseFloat(a.value || 0), 0);
   
@@ -4231,6 +4238,7 @@ function updateFinancialSummary() {
   document.getElementById('totalPending').textContent = 'R$ ' + pending.toFixed(2);
   document.getElementById('totalSessions').textContent = activeAppts.length;
 }
+
 
 function showCashFlowTab(tab) {
   document.querySelectorAll('#fluxo .tab').forEach(t => t.classList.remove('active'));
