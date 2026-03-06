@@ -2914,13 +2914,41 @@ function generateEvolutionsPDF() {
   }
 
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  let y = 20;
+const doc = new jsPDF();
 
-  doc.setFontSize(14);
-  doc.text('RELATÓRIO DE EVOLUÇÃO CLÍNICA', 105, y, { align: 'center' });
-  y += 12;
+const clinicTitle = (clinicConfig && clinicConfig.clinicName)
+    ? clinicConfig.clinicName
+    : (config.clinic || 'ASM Gestão Clínica');
 
+const professionalName = config.name || '';
+const professionalRegistry = config.registry || '';
+
+doc.setFillColor(20, 40, 90);
+doc.rect(0, 0, 210, 30, "F");
+
+doc.setTextColor(255, 255, 255);
+doc.setFontSize(16);
+doc.text(clinicTitle, 105, 13, { align: "center" });
+
+doc.setFontSize(11);
+doc.text("RELATÓRIO DE EVOLUÇÃO CLÍNICA", 105, 21, { align: "center" });
+
+if (professionalName || professionalRegistry) {
+    doc.setFontSize(9);
+    doc.text(
+        [professionalName, professionalRegistry].filter(Boolean).join(" | "),
+        105,
+        27,
+        { align: "center" }
+    );
+}
+
+doc.setTextColor(0, 0, 0);
+
+let y = 40;
+
+doc.setDrawColor(180, 180, 180);
+doc.line(10, 35, 200, 35);
   doc.setFontSize(11);
   doc.text('Paciente: ' + (patient.name || ''), 14, y); y += 6;
   doc.text('CPF: ' + (patient.cpf || '-'), 14, y); y += 6;
