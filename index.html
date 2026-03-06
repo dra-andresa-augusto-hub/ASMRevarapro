@@ -3255,7 +3255,7 @@ function getTherapistColor(userId) {
 function getAttendanceBadge(appt) {
   if (!appt) return '';
   if (appt.attendanceStatus === 'absent_justified') return '<span class="attendance-icon" title="Faltou com justificativa">⚠️</span>';
-  if (appt.attendanceStatus === 'absent_unjustified') return '<span class="attendance-icon" title="Faltou sem justificativa">1X</span>';
+  if (appt.attendanceStatus === 'absent_unjustified') return '<span class="attendance-icon" title="Faltou sem justificativa">❌</span>';
   return '';
 }
 
